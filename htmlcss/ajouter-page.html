@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter-Projet-Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>fullStack_portfolio</h1>
+            <nav>
+                <a href="lister-projet.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← Retour à la liste</a>
+            </nav>
+        </header>
+
+        <main class="form-card">
+            <h2>Nouveau Projet</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Remplissez les informations ci-dessous pour ajouter une réalisation.</p>
+
+            <form action="#">
+                <!-- Libellé -->
+                <div class="form-group">
+                    <label for="libelle">Libellé du projet</label>
+                    <input type="text" id="libelle" name="libelle" placeholder="Ex: Site E-commerce Responsive" required>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Décrivez les objectifs et fonctionnalités..." required></textarea>
+                </div>
+
+                <!-- Image -->
+                <div class="form-group">
+                    <label for="image">URL de l'image</label>
+                    <input type="url" id="image" name="image" placeholder="https://lien-vers-image.jpg" required>
+                </div>
+                <div class="form-group">
+                    <label for="tech">Technologies utilisées</label>
+                    <input type="text" id="tech" placeholder="Ex: HTML, CSS, JavaScript...">
+                    <p class="help-text">Appuyez sur Entrée ou cliquez sur "Ajouter" pour valider chaque technologie</p>
+                    
+                    <button type="button" class="btn btn-add-tech">Ajouter une technologie</button>
+                    
+                    <div class="tech-tags">
+                        <span class="tag">HTML</span>
+                        <span class="tag">CSS</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="btn-group">
+                    <a href="lister-projet.html" class="btn btn-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-primary">Enregistrer le projet</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+</body>
+</html>
