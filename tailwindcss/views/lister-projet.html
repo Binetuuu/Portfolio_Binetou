@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil - Portfolio</title>
+    <title>Mes projets</title>
     <link rel="stylesheet" href="../output.css">
 </head>
 
@@ -24,45 +24,19 @@
         </nav>
     </header>
 
-    <!-- HERO -->
-    <section class="flex flex-col items-center text-center py-20 px-4">
-        <h2 class="text-4xl font-bold text-amber-500 mb-4">Bonjour</h2>
-
-        <h1 class="text-3xl font-bold mb-4">
-            Je suis Binetou Rassoul SEYE
-        </h1>
-
-        <p class="text-lg text-gray-600 max-w-xl mb-6">
-            Développeur web passionné, je crée des sites modernes et fonctionnels.
-        </p>
-
-        <a href="lister-projet.html" class="bg-amber-400 text-white px-6 py-2 rounded-3xl hover:bg-amber-200">
-            Voir mes projets
+    <!-- TITRE -->
+    <section class="text-center py-12">
+        <h2 class="text-4xl font-bold mb-4">Mes projets</h2>
+        <a href="ajouter.html" class="bg-amber-400 text-white px-6 py-2  hover:bg-amber-200 rounded-3xl">
+            + Ajouter un projet
         </a>
     </section>
 
-    <!-- A PROPOS -->
-    <section class="bg-gray-500 text-white py-6 px-3 text-center mt-5">
-        <h2 class="text-3xl font-bold mb-4">À propos de moi</h2>
-
-        <p class="max-w-2xl mx-auto mb-6">
-            Je suis un développeur web débutant passionné par la création de sites web.
-            J'aime apprendre de nouvelles technologies comme HTML, CSS et JavaScript.
-        </p>
-
-        <a href="apropos.html" class="border border-white px-6 py-2 rounded hover:bg-white hover:text-amber-400">
-            En savoir plus
-        </a>
-    </section>
-
-    <!-- PROJETS -->
-    <section class="py-20 px-6">
-        <h2 class="text-3xl font-bold text-center mb-10">Mes projets récents</h2>
-
+    <!-- LISTE DES PROJETS -->
+    <section class="px-6 pb-20">
         <div class="grid md:grid-cols-3 gap-6">
 
             <!-- PROJET 1 -->
-           
             <article class="bg-white rounded-lg shadow p-4 max-w-sm">
 
                 <!-- IMAGE -->
@@ -94,10 +68,7 @@
                 </div>
 
             </article>
-            
-
-            <!-- PROJET 2 -->
-            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+             <article class="bg-white rounded-lg shadow p-4 max-w-sm">
 
                 <!-- IMAGE -->
                 <img src="../assets/cicd.jpg"
@@ -131,45 +102,75 @@
 
             <!-- PROJET 3 -->
             <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+                <img src="../assets/computer-vision.jpg" class="w-full h-48 object-cover rounded mb-4">
 
-                <!-- IMAGE -->
-                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=500&q=80"
-                    alt="Aperçu Site E-commerce" class="w-full h-48 object-cover rounded mb-4">
+                <h3 class="text-xl font-bold mb-2">
+                    <a href="detailler-projet.html">Système de reconnaissance d’objets en temps réel avec pipeline MLOps</a>
+                </h3>
 
-                <!-- TITRE -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-bold mb-1">
-                        Plateforme E-commerce Full Stack
-                    </h3>
-                    <p class="text-gray-500 text-sm">
-                        Ajouté le 15 juillet 2025
-                    </p>
-                </div>
+                <p class="text-gray-500 text-sm mb-4">
+                    Ajouté le 17 decembre 2025
+                </p>
 
-                <!-- ACTIONS -->
-                <div class="flex justify-between items-center">
-
-                    <a href="first-project-details.html"
-                        class="bg-amber-400 text-white px-6 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                <div class="flex justify-between">
+                    <a href="detailler-projet.html"
+                        class="bg-amber-400 text-white px-4 py-2 rounded-2xl hover:bg-amber-200 text-sm">
                         Voir détails
                     </a>
 
-                    <button class="bg-red-500 text-white px-6 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-700 text-sm">
                         Supprimer
                     </button>
-
                 </div>
-
             </article>
-               
-            </div>
 
-        </div>
+            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+                <img src="../assets/data-analyts.jpg" class="w-full h-48 object-cover rounded mb-4">
 
-        <div class="text-center mt-10">
-            <a href="lister-projet.html" class="text-gray-700 font-bold hover:text-amber-400">
-                Voir tous les projets →
-            </a>
+                <h3 class="text-xl font-bold mb-2">
+                    <a href="detailler-projet.html">Analyse de données et création de dashboards décisionnels</a>
+                </h3>
+
+                <p class="text-gray-500 text-sm mb-4">
+                    Ajouté le 02 Aout 2025
+                </p>
+
+                <div class="flex justify-between">
+                    <a href="detailler-projet.html"
+                        class="bg-amber-400 text-white px-4 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                        Voir détails
+                    </a>
+
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                        Supprimer
+                    </button>
+                </div>
+            </article>
+            
+
+            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+                <img src="../assets/aws.jpg" class="w-full h-48 object-cover rounded mb-4">
+
+                <h3 class="text-xl font-bold mb-2">
+                    <a href="detailler-projet.html">Architecture cloud avec réseau privé/public sur AWS</a>
+                </h3>
+
+                <p class="text-gray-500 text-sm mb-4">
+                    Ajouté le 13 mars 2026
+                </p>
+
+                <div class="flex justify-between">
+                    <a href="detailler-projet.html"
+                        class="bg-amber-400 text-white px-4 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                        Voir détails
+                    </a>
+
+                    <button class="bg-red-500 text-white px-4 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                        Supprimer
+                    </button>
+                </div>
+            </article>
+
         </div>
     </section>
 
