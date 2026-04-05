@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Portfolio</title>
+    <link rel="stylesheet" href="../output.css">
+</head>
+
+<body class="bg-amber-50 text-gray-800">
+
+    <!-- NAVBAR -->
+    <header class="bg-gray-700 text-white">
+        <nav class="flex justify-between items-center px-8 py-4">
+            <h1 class="text-2xl font-medium text-amber-400">folio.Binetuuu</h1>
+
+            <div class="flex gap-6">
+                <a href="index.html" class="hover:text-amber-400">Accueil</a>
+                <a href="lister-projet.html" class="hover:text-amber-400">Projets</a>
+                <a href="ajouter.html" class="hover:text-amber-400">Ajouter</a>
+                <a href="contact.html" class="hover:text-amber-400">Contact</a>
+            </div>
+        </nav>
+    </header>
+    <main class="max-w-4xl mx-auto p-6">
+
+        <!-- TITRE -->
+        <h2 class="text-3xl font-bold mb-6">
+            Plateforme E-commerce Full Stack
+        </h2>
+
+        <!-- CARTE PROJET -->
+        <article class="bg-white rounded-lg shadow p-6">
+
+            <!-- IMAGE -->
+            <img src="../assets/imc.jpg"
+                alt="Projet" class="w-full h-56 object-cover rounded mb-6">
+
+            <!-- DESCRIPTION -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-2">Description</h3>
+
+                <p class="text-gray-600 text-sm leading-relaxed">
+                   Application simple permettant de calculer l’Indice de Masse Corporelle (IMC) à partir du poids et de la taille de l’utilisateur, avec affichage de la catégorie (maigreur, normal, surpoids, etc.).
+                </p>
+            </div>
+
+            <!-- TECHNOLOGIES -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3">Technologies utilisées</h3>
+
+                <div class="flex flex-wrap gap-2">
+                    <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm">html</span>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm">css</span>
+                    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded text-sm">JavaScript</span>
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm">Php</span>
+                    <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">Mysql</span>
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm">Git</span>
+                    
+                </div>
+            </div>
+
+            <!-- BOUTON -->
+            <a href="lister-projet.html"
+                class="inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-800 text-sm">
+                ← Retour à la liste
+            </a>
+
+        </article>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-gray-500 text-sm mt-10 py-6 border-t">
+        © 2026 fullStack_portfolio
+    </footer>
+</body>
+
+</html>
