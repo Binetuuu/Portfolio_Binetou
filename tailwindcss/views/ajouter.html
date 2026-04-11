@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un projet</title>
+
+  <!-- Ton fichier Tailwind compilé -->
+  <link rel="stylesheet" href="../output.css">
+</head>
+
+<body class="bg-amber-50 text-gray-800">
+
+<!-- NAVBAR -->
+ <header class="bg-gray-700 text-white">
+        <nav class="flex justify-between items-center px-8 py-4">
+            <h1 class="text-2xl font-medium text-amber-400">folio.Binetuuu</h1>
+
+            <div class="flex gap-6">
+                <a href="index.html" class="hover:text-amber-400">Accueil</a>
+                <a href="lister-projet.html" class="hover:text-amber-400">Projets</a>
+                <a href="ajouter.html" class="hover:text-amber-400">Ajouter</a>
+                <a href="contact.html" class="hover:text-amber-400">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+<!-- TITRE -->
+<section class="text-center py-10">
+  <h2 class="text-3xl font-bold mb-2">Ajouter un projet</h2>
+  <p class="text-gray-500">Remplissez les informations</p>
+</section>
+
+<!-- FORMULAIRE -->
+<section class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+
+  <!-- Nom -->
+  <div class="mb-4">
+    <label class="block mb-1 font-medium">Nom du projet</label>
+    <input type="text"
+      class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400">
+  </div>
+
+  <!-- Catégorie -->
+  <div class="mb-4">
+    <label class="block mb-1 font-medium">Catégorie</label>
+    <select class="w-full border rounded px-3 py-2">
+      <option>Web</option>
+      <option>Mobile</option>
+      <option>Anayse de donnees</option>
+      <option>Cloud AWS</option>
+       <option>Securite</option>
+        <option>Administration system</option>
+    </select>
+  </div>
+
+  <!-- Description -->
+  <div class="mb-4">
+    <label class="block mb-1 font-medium">Description</label>
+    <textarea rows="4"
+      class="w-full border rounded px-3 py-2"></textarea>
+  </div>
+
+  <!-- Image -->
+<div class="mb-4">
+    <label class="block mb-1 font-medium">Image</label>
+    <div class="relative">
+        <input type="file" id="image-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+        <label for="image-upload" class="block w-full border border-gray-300 rounded px-3 py-2 bg-white cursor-pointer hover:bg-gray-50 focus-within:ring-2 focus-within:ring-amber-400">
+            <span class="text-gray-500">Choisir une image...</span>
+        </label>
+    </div>
+</div>
+
+  <!-- Bouton -->
+  <button class="w-full bg-amber-400 text-white py-2 rounded-3xl hover:bg-amber-200">
+    Ajouter le projet
+  </button>
+
+</section>
+
+<!-- APERCU -->
+<section class="max-w-3xl mx-auto mt-10">
+  <h3 class="text-xl font-bold mb-4">Aperçu</h3>
+
+  <article class="bg-white rounded shadow p-4 max-w-sm">
+
+    <img src="https://picsum.photos/400/200"
+      class="w-full h-40 object-cover rounded mb-3">
+
+    <h4 class="font-bold text-lg">Titre du projet</h4>
+    <p class="text-gray-500 text-sm mb-3">Description du projet...</p>
+
+    <div class="flex justify-between">
+      <button class="bg-amber-400 text-white px-3 py-1 rounded-2xl hover:bg-amber-200 text-sm">
+        Voir
+      </button>
+      <button class="bg-red-500 text-white px-3 py-1 rounded-2xl hover:bg-red-700 text-sm">
+        Supprimer
+      </button>
+    </div>
+
+  </article>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-800 text-white text-center py-4 mt-10">
+  <p>© 2026 Mon Portfolio</p>
+</footer>
+
+</body>
+</html>

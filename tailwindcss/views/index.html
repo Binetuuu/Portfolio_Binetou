@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Portfolio</title>
+    <link rel="stylesheet" href="../output.css">
+</head>
+
+<body class="bg-amber-50 text-gray-800">
+
+    <!-- NAVBAR -->
+    <header class="bg-gray-700 text-white">
+        <nav class="flex justify-between items-center px-8 py-4">
+            <h1 class="text-2xl font-medium text-amber-400">folio.Binetuuu</h1>
+
+            <div class="flex gap-6">
+                <a href="index.html" class="hover:text-amber-400">Accueil</a>
+                <a href="lister-projet.html" class="hover:text-amber-400">Projets</a>
+                <a href="ajouter.html" class="hover:text-amber-400">Ajouter</a>
+                <a href="contact.html" class="hover:text-amber-400">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="flex flex-col items-center text-center py-20 px-4">
+        <h2 class="text-4xl font-bold text-amber-500 mb-4">Bonjour</h2>
+
+        <h1 class="text-3xl font-bold mb-4">
+            Je suis Binetou Rassoul SEYE
+        </h1>
+
+        <p class="text-lg text-gray-600 max-w-xl mb-6">
+            Développeur web passionné, je crée des sites modernes et fonctionnels.
+        </p>
+
+        <a href="lister-projet.html" class="bg-amber-400 text-white px-6 py-2 rounded-3xl hover:bg-amber-200">
+            Voir mes projets
+        </a>
+    </section>
+
+    <!-- A PROPOS -->
+    <section class="bg-gray-500 text-white py-6 px-3 text-center mt-5">
+        <h2 class="text-3xl font-bold mb-4">À propos de moi</h2>
+
+        <p class="max-w-2xl mx-auto mb-6">
+            Je suis un développeur web débutant passionné par la création de sites web.
+            J'aime apprendre de nouvelles technologies comme HTML, CSS et JavaScript.
+        </p>
+
+        <a href="apropos.html" class="border border-white px-6 py-2 rounded hover:bg-white hover:text-amber-400">
+            En savoir plus
+        </a>
+    </section>
+
+    <!-- PROJETS -->
+    <section class="py-20 px-6">
+        <h2 class="text-3xl font-bold text-center mb-10">Mes projets récents</h2>
+
+        <div class="grid md:grid-cols-3 gap-6">
+
+            <!-- PROJET 1 -->
+           
+            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+
+                <!-- IMAGE -->
+                <img src="../assets/imc.jpg"
+                    alt="Aperçu Site E-commerce" class="w-full h-48 object-cover rounded mb-4">
+
+                <!-- TITRE -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold mb-1">
+                        Calculateur d’IMC interactif
+                    </h3>
+                    <p class="text-gray-500 text-sm">
+                        Ajouté le 28 decembre 2024
+                    </p>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="flex justify-between items-center">
+
+                    <a href="detail-projet1.html"
+                        class="bg-amber-400 text-white px-6 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                        Voir détails
+                    </a>
+
+                    <button class="bg-red-500 text-white px-6 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                        Supprimer
+                    </button>
+
+                </div>
+
+            </article>
+            
+
+            <!-- PROJET 2 -->
+            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+
+                <!-- IMAGE -->
+                <img src="../assets/cicd.jpg"
+                    alt="Aperçu Site E-commerce" class="w-full h-48 object-cover rounded mb-4">
+
+                <!-- TITRE -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold mb-1">
+                        Mise en place d’un pipeline CI/CD pour une application CRUD sous linux
+                    </h3>
+                    <p class="text-gray-500 text-sm">
+                        Ajouté le 27 avril 2025
+                    </p>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="flex justify-between items-center">
+
+                    <a href="first-project-details.html"
+                        class="bg-amber-400 text-white px-6 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                        Voir détails
+                    </a>
+
+                    <button class="bg-red-500 text-white px-6 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                        Supprimer
+                    </button>
+
+                </div>
+
+            </article>
+
+            <!-- PROJET 3 -->
+            <article class="bg-white rounded-lg shadow p-4 max-w-sm">
+
+                <!-- IMAGE -->
+                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=500&q=80"
+                    alt="Aperçu Site E-commerce" class="w-full h-48 object-cover rounded mb-4">
+
+                <!-- TITRE -->
+                <div class="mb-4">
+                    <h3 class="text-xl font-bold mb-1">
+                        Plateforme E-commerce Full Stack
+                    </h3>
+                    <p class="text-gray-500 text-sm">
+                        Ajouté le 15 juillet 2025
+                    </p>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="flex justify-between items-center">
+
+                    <a href="detail-projet3.html"
+                        class="bg-amber-400 text-white px-6 py-2 rounded-2xl hover:bg-amber-200 text-sm">
+                        Voir détails
+                    </a>
+
+                    <button class="bg-red-500 text-white px-6 py-2 rounded-2xl hover:bg-red-700 text-sm">
+                        Supprimer
+                    </button>
+
+                </div>
+
+            </article>
+               
+            </div>
+
+        </div>
+
+        <div class="text-center mt-10">
+            <a href="lister-projet.html" class="text-gray-700 font-bold hover:text-amber-400">
+                Voir tous les projets →
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-800 text-white text-center py-6">
+        <p>© 2026 Mon Portfolio</p>
+    </footer>
+
+</body>
+
+</html>
