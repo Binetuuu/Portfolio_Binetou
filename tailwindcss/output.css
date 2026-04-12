@@ -626,7 +626,7 @@
 
   .text-amber-50 {
     color: var(--color-amber-50);
-
+  }
   .text-xl {
     font-size: var(--text-xl);
     line-height: var(--tw-leading, var(--text-xl--line-height));
