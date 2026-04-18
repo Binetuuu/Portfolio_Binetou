@@ -1,116 +1,37 @@
 // src/components/AjouterProjet.jsx
-// Formulaire pour ajouter un nouveau projet
-
 import { useState } from "react";
+const vide = { libelle:"", image:"", description:"", technologies:"", lien:"", annee: new Date().getFullYear() };
 
-const champVide = {
-  libelle: "",
-  image: "",
-  description: "",
-  technologies: "",
-  lien: "",
-  annee: new Date().getFullYear(),
-};
-
-function AjouterProjet({ onAjouter }) {
-  const [champs, setChamps] = useState(champVide);
-  const [visible, setVisible] = useState(false);
-
-  // Met à jour un champ du formulaire
-  function handleChange(e) {
-    setChamps({ ...champs, [e.target.name]: e.target.value });
-  }
-
-  // Soumet le formulaire
+function AjouterProjet({ onAjouter, onFermer }) {
+  const [champs, setChamps] = useState(vide);
+  function handleChange(e) { setChamps({ ...champs, [e.target.name]: e.target.value }); }
   function handleSubmit(e) {
     e.preventDefault();
-    if (!champs.libelle.trim()) {
-      alert("Le libellé est obligatoire.");
-      return;
-    }
+    if (!champs.libelle.trim()) { alert("Libellé obligatoire."); return; }
     onAjouter(champs);
-    setChamps(champVide);
-    setVisible(false);
+    setChamps(vide);
   }
-
-  if (!visible) {
-    return (
-      <button className="btn btn-primary" onClick={() => setVisible(true)}>
-        + Nouveau projet
-      </button>
-    );
-  }
-
+  function handleBackdrop(e) { if (e.target === e.currentTarget) onFermer(); }
   return (
-    <form className="form-ajout" onSubmit={handleSubmit}>
-      <h2>Ajouter un projet</h2>
-
-      <label>Libellé *</label>
-      <input
-        name="libelle"
-        value={champs.libelle}
-        onChange={handleChange}
-        placeholder="Nom du projet"
-        required
-      />
-
-      <label>Image (URL)</label>
-      <input
-        name="image"
-        value={champs.image}
-        onChange={handleChange}
-        placeholder="https://..."
-      />
-
-      <label>Description</label>
-      <textarea
-        name="description"
-        value={champs.description}
-        onChange={handleChange}
-        rows={3}
-        placeholder="Décrivez votre projet..."
-      />
-
-      <label>Technologies</label>
-      <input
-        name="technologies"
-        value={champs.technologies}
-        onChange={handleChange}
-        placeholder="React, Node.js, ..."
-      />
-
-      <label>Lien GitHub / Demo</label>
-      <input
-        name="lien"
-        value={champs.lien}
-        onChange={handleChange}
-        placeholder="https://github.com/..."
-      />
-
-      <label>Année</label>
-      <input
-        name="annee"
-        type="number"
-        value={champs.annee}
-        onChange={handleChange}
-        min={2000}
-        max={2100}
-      />
-
-      <div className="form-actions">
-        <button type="submit" className="btn btn-primary">
-          Enregistrer
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setVisible(false)}
-        >
-          Annuler
-        </button>
+    <div className="form-overlay" onClick={handleBackdrop}>
+      <div className="form-modal">
+        <h2>Nouveau <span>projet</span></h2>
+        <div className="form-row">
+          <div className="form-group"><label>Libellé *</label><input name="libelle" value={champs.libelle} onChange={handleChange} placeholder="Nom du projet" /></div>
+          <div className="form-group"><label>Année</label><input name="annee" type="number" value={champs.annee} onChange={handleChange} /></div>
+        </div>
+        <div className="form-group"><label>Description</label><textarea name="description" rows={3} value={champs.description} onChange={handleChange} placeholder="Décrivez votre projet..." /></div>
+        <div className="form-row">
+          <div className="form-group"><label>Technologies</label><input name="technologies" value={champs.technologies} onChange={handleChange} placeholder="React, Node.js, ..." /></div>
+          <div className="form-group"><label>Lien GitHub / Démo</label><input name="lien" value={champs.lien} onChange={handleChange} placeholder="https://..." /></div>
+        </div>
+        <div className="form-group"><label>Image (URL)</label><input name="image" value={champs.image} onChange={handleChange} placeholder="https://..." /></div>
+        <div className="form-actions">
+          <button className="btn btn-gold" onClick={handleSubmit}>Enregistrer</button>
+          <button className="btn btn-outline" onClick={onFermer}>Annuler</button>
+        </div>
       </div>
-    </form>
+    </div>
   );
 }
-
 export default AjouterProjet;

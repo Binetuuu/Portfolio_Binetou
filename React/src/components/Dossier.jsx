@@ -1,28 +1,29 @@
 // src/components/Dossier.jsx
-// Composant principal qui gère la liste des projets :
-//   - chargement depuis l'API
-//   - ajout / suppression / modification
-//   - affichage de la liste et du détail
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Projet from "./Projet";
 import AjouterProjet from "./AjouterProjet";
 import DetaillerProjet from "./DetaillerProjet";
-import {
-  fetchProjets,
-  ajouterProjet,
-  supprimerProjet,
-  modifierProjet,
-} from "../api";
+import { fetchProjets, ajouterProjet, supprimerProjet, modifierProjet } from "../api";
 
 function Dossier() {
-  const [projets, setProjets]           = useState([]);    // liste complète
-  const [recherche, setRecherche]       = useState("");    // filtre de recherche
-  const [projetActif, setProjetActif]   = useState(null);  // projet sélectionné
-  const [chargement, setChargement]     = useState(true);  // indicateur de chargement
-  const [erreur, setErreur]             = useState(null);  // message d'erreur
+  const [projets, setProjets] = useState([]);
+  const [recherche, setRecherche] = useState("");
+  const [projetActif, setProjetActif] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState(null);
+  const [toast, setToast] = useState("");
+  const ref = useRef(null);
 
-  // Charger les projets au montage
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => e.target.classList.toggle("visible", e.isIntersecting)),
+      { threshold: 0.1 }
+    );
+    ref.current?.querySelectorAll(".fade-up").forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [projets]);
+
   useEffect(() => {
     fetchProjets()
       .then(setProjets)
@@ -30,102 +31,84 @@ function Dossier() {
       .finally(() => setChargement(false));
   }, []);
 
-  // ── Ajouter un projet ────────────────────────────────────────
-  async function handleAjouter(nouveauProjet) {
+  function afficherToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
+
+  async function handleAjouter(data) {
     try {
-      const cree = await ajouterProjet(nouveauProjet);
-      setProjets([...projets, cree]);
-    } catch {
-      alert("Erreur lors de l'ajout.");
-    }
+      const cree = await ajouterProjet(data);
+      setProjets(prev => [...prev, cree]);
+      setShowForm(false);
+      afficherToast("Projet ajouté ✓");
+    } catch { alert("Erreur lors de l'ajout."); }
   }
 
-  // ── Supprimer un projet ──────────────────────────────────────
   async function handleSupprimer(id) {
     if (!window.confirm("Supprimer ce projet ?")) return;
     try {
       await supprimerProjet(id);
-      setProjets(projets.filter((p) => p.id !== id));
-      // Si le projet supprimé était affiché en détail, on ferme
-      if (projetActif && projetActif.id === id) setProjetActif(null);
-    } catch {
-      alert("Erreur lors de la suppression.");
-    }
+      setProjets(prev => prev.filter(p => p.id !== id));
+      if (projetActif?.id === id) setProjetActif(null);
+      afficherToast("Projet supprimé ✓");
+    } catch { alert("Erreur lors de la suppression."); }
   }
 
-  // ── Modifier un projet ───────────────────────────────────────
-  async function handleEditer(id, donnees) {
+  async function handleEditer(id, data) {
     try {
-      const modifie = await modifierProjet(id, donnees);
-      setProjets(projets.map((p) => (p.id === id ? modifie : p)));
+      const modifie = await modifierProjet(id, data);
+      setProjets(prev => prev.map(p => p.id === id ? modifie : p));
       setProjetActif(modifie);
-    } catch {
-      alert("Erreur lors de la modification.");
-    }
+      afficherToast("Projet modifié ✓");
+    } catch { alert("Erreur lors de la modification."); }
   }
 
-  // ── Filtrer les projets selon la recherche ───────────────────
-  const projetsFiltres = projets.filter((p) =>
-    p.libelle.toLowerCase().includes(recherche.toLowerCase())
+  const projetsFiltres = projets.filter(p =>
+    p.libelle.toLowerCase().includes(recherche.toLowerCase()) ||
+    (p.technologies || "").toLowerCase().includes(recherche.toLowerCase())
   );
 
-  // ── Rendu ────────────────────────────────────────────────────
   return (
-    <div className="dossier">
-      {/* En-tête */}
-      <header className="portfolio-header">
-        <h1>Mon Portfolio</h1>
-        <p>Bienvenue sur ma vitrine de projets</p>
-      </header>
-
-      {/* Zone de contrôle : recherche + ajout */}
-      <div className="controls">
-        <input
-          className="search-input"
-          type="text"
-          placeholder="🔍 Rechercher un projet..."
-          value={recherche}
-          onChange={(e) => setRecherche(e.target.value)}
-        />
-        <AjouterProjet onAjouter={handleAjouter} />
+    <section id="projets" className="section section-alt" ref={ref}>
+      <div className="section-header fade-up">
+        <p className="section-eyebrow">Mes réalisations</p>
+        <h2 className="section-title">Projets <span>récents</span></h2>
+        <p className="section-subtitle">Une sélection de projets que j'ai conçus et développés.</p>
       </div>
 
-      {/* États : chargement / erreur */}
-      {chargement && <p className="msg-info">Chargement des projets…</p>}
-      {erreur    && <p className="msg-erreur">{erreur}</p>}
+      <div className="projets-controls fade-up">
+        <div className="search-wrap">
+          <span className="search-icon">⌕</span>
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Rechercher par nom ou technologie..."
+            value={recherche}
+            onChange={e => setRecherche(e.target.value)}
+          />
+        </div>
+        <span className="projets-count">{projetsFiltres.length} projet(s)</span>
+        <button className="btn btn-gold" onClick={() => setShowForm(true)}>+ Ajouter</button>
+      </div>
 
-      {/* Détail d'un projet sélectionné */}
-      {projetActif && (
-        <DetaillerProjet
-          projet={projetActif}
-          onAnnuler={() => setProjetActif(null)}
-          onEditer={handleEditer}
-        />
-      )}
+      {showForm && <AjouterProjet onAjouter={handleAjouter} onFermer={() => setShowForm(false)} />}
+      {projetActif && <DetaillerProjet projet={projetActif} onAnnuler={() => setProjetActif(null)} onEditer={handleEditer} />}
 
-      {/* Liste des projets */}
+      {chargement && <p style={{color:"var(--text-muted)",textAlign:"center",padding:"3rem 0"}}>Chargement…</p>}
+      {erreur && <p style={{color:"var(--danger)",textAlign:"center",padding:"3rem 0"}}>{erreur}</p>}
+
       {!chargement && !erreur && (
-        <>
-          <p className="compteur">
-            {projetsFiltres.length} projet(s) trouvé(s)
-          </p>
-          <div className="grille">
-            {projetsFiltres.map((p) => (
-              <Projet
-                key={p.id}
-                projet={p}
-                onSupprimer={handleSupprimer}
-                onSelectionner={setProjetActif}
-              />
-            ))}
-          </div>
-          {projetsFiltres.length === 0 && (
-            <p className="msg-info">Aucun projet ne correspond à votre recherche.</p>
-          )}
-        </>
+        <div className="projets-grid">
+          {projetsFiltres.map((p, i) => (
+            <div key={p.id} className="fade-up" style={{transitionDelay:`${i*0.07}s`}}>
+              <Projet projet={p} onVoirDetail={setProjetActif} onSupprimer={handleSupprimer} />
+            </div>
+          ))}
+        </div>
       )}
-    </div>
+      {!chargement && !erreur && projetsFiltres.length === 0 && (
+        <p style={{color:"var(--text-muted)",textAlign:"center",padding:"3rem 0"}}>Aucun projet trouvé.</p>
+      )}
+      {toast && <div className="toast">{toast}</div>}
+    </section>
   );
 }
-
 export default Dossier;

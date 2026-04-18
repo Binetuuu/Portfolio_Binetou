@@ -1,131 +1,71 @@
 // src/components/DetaillerProjet.jsx
-// Affiche les informations complètes d'un projet
-// Bouton Annuler → ferme le détail
-// Bouton Editer  → passe en mode édition
-
 import { useState } from "react";
 
 function DetaillerProjet({ projet, onAnnuler, onEditer }) {
   const [enEdition, setEnEdition] = useState(false);
   const [champs, setChamps] = useState({ ...projet });
+  const techs = projet.technologies ? projet.technologies.split(",").map(t => t.trim()) : [];
 
-  function handleChange(e) {
-    setChamps({ ...champs, [e.target.name]: e.target.value });
-  }
+  function handleChange(e) { setChamps({ ...champs, [e.target.name]: e.target.value }); }
 
   function handleSauvegarder(e) {
     e.preventDefault();
+    if (!champs.libelle.trim()) { alert("Libellé obligatoire."); return; }
     onEditer(projet.id, champs);
     setEnEdition(false);
   }
 
-  // ── Mode lecture ──────────────────────────────────────────────
-  if (!enEdition) {
-    return (
-      <div className="detail-card">
-        <img
-          src={projet.image}
-          alt={projet.libelle}
-          className="detail-img"
-          onError={(e) => {
-            e.target.src = "https://via.placeholder.com/800x300?text=Projet";
-          }}
-        />
-        <div className="detail-body">
-          <h2>{projet.libelle}</h2>
-          <p className="detail-annee">Année : {projet.annee}</p>
-          <p className="detail-desc">{projet.description}</p>
-          <p>
-            <strong>Technologies :</strong> {projet.technologies}
-          </p>
-          {projet.lien && (
-            <p>
-              <strong>Lien :</strong>{" "}
-              <a href={projet.lien} target="_blank" rel="noreferrer">
-                {projet.lien}
-              </a>
-            </p>
-          )}
+  function handleBackdrop(e) { if (e.target === e.currentTarget) onAnnuler(); }
 
-          <div className="form-actions">
-            <button
-              className="btn btn-primary"
-              onClick={() => setEnEdition(true)}
-            >
-              Éditer
-            </button>
-            <button className="btn btn-secondary" onClick={onAnnuler}>
-              Annuler
-            </button>
+  if (!enEdition) return (
+    <div className="modal-backdrop" onClick={handleBackdrop}>
+      <div className="modal">
+        <button className="modal-close-btn" onClick={onAnnuler}>✕</button>
+        <div className="modal-img-wrap">
+          {projet.image ? <img src={projet.image} alt={projet.libelle} /> : <span>— image du projet —</span>}
+        </div>
+        <div className="modal-body">
+          <p className="modal-year">{projet.annee}</p>
+          <h2 className="modal-title">{projet.libelle}</h2>
+          <p className="modal-label">Description</p>
+          <p className="modal-desc">{projet.description}</p>
+          <p className="modal-label">Technologies</p>
+          <div className="projet-card-tech" style={{marginTop:"0.5rem"}}>
+            {techs.map(t => <span key={t} className="tech-pill">{t}</span>)}
+          </div>
+          {projet.lien && (<>
+            <p className="modal-label">Lien</p>
+            <a href={projet.lien} target="_blank" rel="noreferrer" className="modal-link">Voir le projet →</a>
+          </>)}
+          <div className="modal-actions">
+            <button className="btn btn-gold btn-sm" onClick={() => setEnEdition(true)}>Éditer</button>
+            <button className="btn btn-outline btn-sm" onClick={onAnnuler}>Annuler</button>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // ── Mode édition ──────────────────────────────────────────────
   return (
-    <form className="form-ajout" onSubmit={handleSauvegarder}>
-      <h2>Éditer le projet</h2>
-
-      <label>Libellé *</label>
-      <input
-        name="libelle"
-        value={champs.libelle}
-        onChange={handleChange}
-        required
-      />
-
-      <label>Image (URL)</label>
-      <input
-        name="image"
-        value={champs.image}
-        onChange={handleChange}
-      />
-
-      <label>Description</label>
-      <textarea
-        name="description"
-        value={champs.description}
-        onChange={handleChange}
-        rows={3}
-      />
-
-      <label>Technologies</label>
-      <input
-        name="technologies"
-        value={champs.technologies}
-        onChange={handleChange}
-      />
-
-      <label>Lien</label>
-      <input
-        name="lien"
-        value={champs.lien}
-        onChange={handleChange}
-      />
-
-      <label>Année</label>
-      <input
-        name="annee"
-        type="number"
-        value={champs.annee}
-        onChange={handleChange}
-      />
-
-      <div className="form-actions">
-        <button type="submit" className="btn btn-primary">
-          Sauvegarder
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setEnEdition(false)}
-        >
-          Annuler
-        </button>
+    <div className="form-overlay" onClick={handleBackdrop}>
+      <div className="form-modal">
+        <h2>Éditer <span>{projet.libelle}</span></h2>
+        <div className="form-row">
+          <div className="form-group"><label>Libellé *</label><input name="libelle" value={champs.libelle} onChange={handleChange} /></div>
+          <div className="form-group"><label>Année</label><input name="annee" type="number" value={champs.annee} onChange={handleChange} /></div>
+        </div>
+        <div className="form-group"><label>Description</label><textarea name="description" rows={3} value={champs.description} onChange={handleChange} /></div>
+        <div className="form-row">
+          <div className="form-group"><label>Technologies</label><input name="technologies" value={champs.technologies} onChange={handleChange} /></div>
+          <div className="form-group"><label>Lien</label><input name="lien" value={champs.lien || ""} onChange={handleChange} /></div>
+        </div>
+        <div className="form-group"><label>Image (URL)</label><input name="image" value={champs.image || ""} onChange={handleChange} /></div>
+        <div className="form-actions">
+          <button className="btn btn-gold" onClick={handleSauvegarder}>Sauvegarder</button>
+          <button className="btn btn-outline" onClick={() => setEnEdition(false)}>Annuler</button>
+        </div>
       </div>
-    </form>
+    </div>
   );
 }
 

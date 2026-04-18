@@ -2,11 +2,11 @@
   "projets": [
     {
       "id": "1",
-      "libelle": "Dashboard Analytics",
-      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400",
-      "description": "Tableau de bord interactif pour la visualisation de données en temps réel.",
-      "technologies": "Vue.js, D3.js, Firebase",
-      "lien": "https://github.com/exemple/dashboard",
+      "libelle": "Application E-Commerce",
+      "image": "https://images.unsplash.com/photo-1557821552-17105176677c?w=400",
+      "description": "Une plateforme de vente en ligne complète avec panier, paiement et gestion des stocks.",
+      "technologies": "React, Node.js, MongoDB",
+      "lien": "https://github.com/exemple/ecommerce",
       "annee": 2024
     },
     {
@@ -27,6 +27,5 @@
       "lien": "https://github.com/exemple/fitness",
       "annee": 2023
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }
