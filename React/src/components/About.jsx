@@ -25,11 +25,11 @@ function About() {
 
         {/* Visuel */}
         <div className="about-visual fade-up">
-          <div className="about-avatar">BS</div>
-          <div className="about-badge">
+          <div className="about-avatar">BRS</div>
+          {/* <div className="about-badge">
             <strong>3+</strong>
             ans d'expérience
-          </div>
+          </div> */}
         </div>
 
         {/* Texte */}
@@ -37,7 +37,7 @@ function About() {
           <div className="section-header fade-up">
             <p className="section-eyebrow">À propos de moi</p>
             <h2 className="section-title">
-              Passion pour le <span>code</span> &amp; le design
+              Passion pour le <span>code</span>
             </h2>
           </div>
 
