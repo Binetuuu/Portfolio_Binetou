@@ -1,0 +1,227 @@
+/* src/index.css */
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --bg:         #0d0d0d;
+  --surface:    #161616;
+  --surface2:   #1f1f1f;
+  --border:     #2a2a2a;
+  --accent:     #c8f135;   /* vert lime vif */
+  --accent-dim: #9ab826;
+  --text:       #f0f0f0;
+  --text-muted: #888;
+  --danger:     #e05555;
+  --radius:     10px;
+  --font-head:  'Syne', sans-serif;
+  --font-body:  'DM Sans', sans-serif;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Dossier (conteneur global) ────────────────────────────── */
+.dossier {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.portfolio-header {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+}
+.portfolio-header h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+.portfolio-header p {
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Barre de contrôle ──────────────────────────────────────── */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(--accent); }
+
+/* ── Boutons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-block;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.55rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary   { background: var(--accent); color: #0d0d0d; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-danger    { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+
+/* ── Grille de projets ──────────────────────────────────────── */
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ── Carte projet ───────────────────────────────────────────── */
+.projet-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.projet-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+.projet-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+.projet-body {
+  padding: 1rem;
+}
+.projet-titre {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.projet-titre a { color: var(--text); }
+.projet-titre a:hover { color: var(--accent); text-decoration: none; }
+.projet-tech {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* ── Détail du projet ───────────────────────────────────────── */
+.detail-card {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+.detail-img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+.detail-body {
+  padding: 1.5rem;
+}
+.detail-body h2 {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.detail-annee {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.detail-desc {
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+
+/* ── Formulaire ajout/édition ───────────────────────────────── */
+.form-ajout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.form-ajout h2 {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+.form-ajout label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+.form-ajout input,
+.form-ajout textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+.form-ajout input:focus,
+.form-ajout textarea:focus { border-color: var(--accent); }
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Messages d'état ────────────────────────────────────────── */
+.msg-info   { color: var(--text-muted); margin: 1rem 0; }
+.msg-erreur { color: var(--danger);     margin: 1rem 0; font-weight: 500; }
+.compteur   { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .controls { flex-direction: column; }
+  .search-input { width: 100%; }
+}

@@ -1,0 +1,32 @@
+{
+  "projets": [
+    {
+      "id": "1",
+      "libelle": "Dashboard Analytics",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400",
+      "description": "Tableau de bord interactif pour la visualisation de données en temps réel.",
+      "technologies": "Vue.js, D3.js, Firebase",
+      "lien": "https://github.com/exemple/dashboard",
+      "annee": 2024
+    },
+    {
+      "id": "2",
+      "libelle": "Dashboard Analytics",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400",
+      "description": "Tableau de bord interactif pour la visualisation de données en temps réel.",
+      "technologies": "Vue.js, D3.js, Firebase",
+      "lien": "https://github.com/exemple/dashboard",
+      "annee": 2024
+    },
+    {
+      "id": "3",
+      "libelle": "Application Mobile Fitness",
+      "image": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400",
+      "description": "App de suivi fitness avec plans d'entraînement personnalisés et statistiques.",
+      "technologies": "React Native, Firebase, Redux",
+      "lien": "https://github.com/exemple/fitness",
+      "annee": 2023
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
