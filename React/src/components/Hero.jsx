@@ -14,14 +14,16 @@ function Hero() {
 
         <h1>
           Bonjour, je suis<br />
-          <span>Binetou Seye</span>
+          <span>Binetou Rassoul Seye</span>
         </h1>
 
-        <p className="hero-desc">
-          Je conçois et développe des applications web modernes,
-          performantes et accessibles. Passionnée par le code propre
-          et les interfaces qui font la différence.
-        </p>
+        <em className="hero-desc">
+         Développeur fullstack passionné, je crée des applications web modernes, rapides et sécurisées, en maîtrisant
+        l’ensemble de la chaîne technique : frontend, backend, bases de données et infrastructure. J’exploite également
+        mes compétences en réseaux, systèmes, cloud (AWS), DevOps et data analyse pour concevoir des solutions complètes
+        et intelligentes. Mon ambition est de concevoir des produits performants, évolutifs et centrés sur
+        l’utilisateur, capables de répondre à des problématiques réelles avec efficacité.
+        </em>
 
         <div className="hero-actions">
           <button
