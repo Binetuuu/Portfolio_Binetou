@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 const competences = [
   "React", "JavaScript", "Node.js", "Express",
   "MongoDB", "PostgreSQL", "HTML/CSS", "Git",
-  "REST API", "Figma", "Docker", "TypeScript",
+  "REST API", "Figma", "Docker", "Tailwindcss",
 ];
 
 function About() {
@@ -42,9 +42,7 @@ function About() {
           </div>
 
           <p className="fade-up">
-            Diplômée en Informatique, je suis spécialisée dans le développement
-            d'applications web full-stack. Je transforme des idées complexes en
-            expériences numériques intuitives et élégantes.
+           En formation en développement web, je développe des compétences en création d’applications full-stack, notamment avec React. J’aime transformer des idées en interfaces simples, efficaces et agréables à utiliser.
           </p>
           <p className="fade-up">
             Mon approche allie rigueur technique et sensibilité design pour
