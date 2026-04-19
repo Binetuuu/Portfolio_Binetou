@@ -52,7 +52,7 @@ function Contact() {
             <div className="contact-icon">✉</div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginBottom: "2px", letterSpacing: "0.1em", textTransform: "uppercase" }}>Email</div>
-              <div>binetou.seye@example.com</div>
+              <div>seye10bineta@gmail.com</div>
             </div>
           </div>
 
@@ -76,7 +76,7 @@ function Contact() {
             <div className="contact-icon">{}</div>
             <div>
               <div style={{ fontSize: "0.75rem", color: "var(--text-dim)", marginBottom: "2px", letterSpacing: "0.1em", textTransform: "uppercase" }}>GitHub</div>
-              <div>github.com/binetou-seye</div>
+              <div>github.com/Binetuuu</div>
             </div>
           </div>
         </div>
