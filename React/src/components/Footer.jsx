@@ -9,7 +9,7 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
-        <div className="footer-logo">Binetou.</div>
+        <div className="footer-logo">folio.Binetou</div>
 
         <ul className="footer-links">
           {[["accueil","Accueil"],["about","À propos"],["projets","Projets"],["contact","Contact"]].map(([id, label]) => (
@@ -22,7 +22,7 @@ function Footer() {
         </ul>
 
         <p className="footer-copy">
-          © {annee} <span>Binetou Seye</span>. Tous droits réservés.
+          © {annee} <span>Binetou Rassoul SEYE</span>. Tous droits réservés.
         </p>
       </div>
     </footer>
