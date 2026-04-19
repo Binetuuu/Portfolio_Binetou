@@ -35,7 +35,7 @@ function Navbar() {
 
   return (
     <nav className={`navbar${scrolled ? " scrolled" : ""}`}>
-      <div className="nav-logo">Binetou.</div>
+      <div className="nav-logo">folio.Binetou</div>
       <ul className="nav-links">
         {liens.map(({ id, label }) => (
           <li key={id}>

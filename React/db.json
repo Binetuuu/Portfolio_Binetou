@@ -20,12 +20,22 @@
     },
     {
       "id": "3",
-      "libelle": "Application Mobile Fitness",
-      "image": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400",
-      "description": "App de suivi fitness avec plans d'entraînement personnalisés et statistiques.",
-      "technologies": "React Native, Firebase, Redux",
+      "libelle": "Deploiement d'une application Crud ",
+      "image": "https://media.istockphoto.com/id/2175101287/photo/devops-methodology-development-operations-programming.jpg?s=2048x2048&w=is&k=20&c=8o7YU98BdXLU9qxxWtweh-3el_J4XZSj-2WioVpjFkg=",
+      "description": "Deploiement d'une application Crud avec les outils Docker et Jenkins",
+      "technologies": "Html,hhp,git,github,docker,jenkins",
       "lien": "https://github.com/exemple/fitness",
-      "annee": 2023
+      "annee": "2025"
+    },
+    {
+      "libelle": "Pipeline CI/CD",
+      "image": "C:\\Users\\seye1\\Documents\\Orange-Digital-Center\\Devops\\devops.jpg",
+      "description": "Application Crud avec l'integration d'un pipeleine CI/D",
+      "technologies": "Docker,Jenkins,Git,Github",
+      "lien": "https://github.com/Binetuuu/dashboard",
+      "annee": "2025",
+      "id": "rxCgSMuIZxo"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
