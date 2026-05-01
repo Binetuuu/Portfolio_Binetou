@@ -31,7 +31,7 @@
       "libelle": "Pipeline CI/CD",
       "image": "C:\\Users\\seye1\\Documents\\Orange-Digital-Center\\Devops\\devops.jpg",
       "description": "Application Crud avec l'integration d'un pipeleine CI/D",
-      "technologies": "Docker,Jenkins,Git,Github",
+      "technologies": "Docker,Jenkins,Git",
       "lien": "https://github.com/Binetuuu/dashboard",
       "annee": "2025",
       "id": "rxCgSMuIZxo"
