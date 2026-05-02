@@ -1,24 +1,9 @@
 /**
  * project.controller.js
- * Logique métier pour la gestion des projets.
- *
- * NOTE : MongoDB n'est pas encore connecté.
- * On utilise un tableau en mémoire (inMemoryProjects) comme base de données temporaire.
- * Quand vous serez prêt à brancher MongoDB, il suffira de décommenter les lignes
- * Mongoose et de supprimer les blocs "// --- MÉMOIRE ---".
+ * Logique métier pour la gestion des projets — connecté à MongoDB via Mongoose.
  */
 
-// const Project = require('../models/project.model'); // ← décommenter pour MongoDB
-
-// ── Base de données temporaire en mémoire ─────────────────────
-let inMemoryProjects = [];
-let nextId = 1;
-
-// Helper : simuler un _id MongoDB
-function generateId() {
-  return String(nextId++);
-}
-// ─────────────────────────────────────────────────────────────
+const Project = require('../models/project.model');
 
 /**
  * POST /api/projects
@@ -32,26 +17,16 @@ const createProject = async (req, res) => {
       return res.status(400).json({ message: 'Titre, description et catégorie sont obligatoires.' });
     }
 
-    // --- MÉMOIRE ---
-    const project = {
-      _id: generateId(),
+    const project = await Project.create({
       title,
       description,
       category,
-      technologies: technologies || '',
-      status: status || 'completed',
-      github: github || '',
-      demo: demo || '',
-      image: image || '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    inMemoryProjects.push(project);
-    // --- FIN MÉMOIRE ---
-
-    /* MongoDB (décommenter quand prêt) :
-    const project = await Project.create({ title, description, category, technologies, status, github, demo, image });
-    */
+      technologies,
+      status,
+      github,
+      demo,
+      image,
+    });
 
     res.status(201).json(project);
   } catch (error) {
@@ -65,14 +40,7 @@ const createProject = async (req, res) => {
  */
 const getAllProjects = async (req, res) => {
   try {
-    // --- MÉMOIRE ---
-    const projects = inMemoryProjects;
-    // --- FIN MÉMOIRE ---
-
-    /* MongoDB (décommenter quand prêt) :
     const projects = await Project.find().sort({ createdAt: -1 });
-    */
-
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -85,15 +53,7 @@ const getAllProjects = async (req, res) => {
  */
 const getProjectById = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    // --- MÉMOIRE ---
-    const project = inMemoryProjects.find(p => p._id === id);
-    // --- FIN MÉMOIRE ---
-
-    /* MongoDB (décommenter quand prêt) :
-    const project = await Project.findById(id);
-    */
+    const project = await Project.findById(req.params.id);
 
     if (!project) {
       return res.status(404).json({ message: 'Projet introuvable.' });
@@ -111,22 +71,15 @@ const getProjectById = async (req, res) => {
  */
 const updateProject = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updates = req.body;
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-    // --- MÉMOIRE ---
-    const index = inMemoryProjects.findIndex(p => p._id === id);
-    if (index === -1) {
+    if (!project) {
       return res.status(404).json({ message: 'Projet introuvable.' });
     }
-    inMemoryProjects[index] = { ...inMemoryProjects[index], ...updates, updatedAt: new Date() };
-    const project = inMemoryProjects[index];
-    // --- FIN MÉMOIRE ---
-
-    /* MongoDB (décommenter quand prêt) :
-    const project = await Project.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
-    if (!project) return res.status(404).json({ message: 'Projet introuvable.' });
-    */
 
     res.status(200).json(project);
   } catch (error) {
@@ -140,20 +93,11 @@ const updateProject = async (req, res) => {
  */
 const deleteProject = async (req, res) => {
   try {
-    const { id } = req.params;
+    const project = await Project.findByIdAndDelete(req.params.id);
 
-    // --- MÉMOIRE ---
-    const index = inMemoryProjects.findIndex(p => p._id === id);
-    if (index === -1) {
+    if (!project) {
       return res.status(404).json({ message: 'Projet introuvable.' });
     }
-    inMemoryProjects.splice(index, 1);
-    // --- FIN MÉMOIRE ---
-
-    /* MongoDB (décommenter quand prêt) :
-    const project = await Project.findByIdAndDelete(id);
-    if (!project) return res.status(404).json({ message: 'Projet introuvable.' });
-    */
 
     res.status(200).json({ message: 'Projet supprimé avec succès.' });
   } catch (error) {
