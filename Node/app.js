@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 3000;
 
 // ── Connexion MongoDB Atlas ───────────────────────────────────
 mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://seye10bineta_db_user:2BCIiVtxLYNpCVMW@cluster0-pme76.mongodb.net/test?retryWrites=true&w=majority')
-  .then(() => console.log('✅ Connexion à MongoDB réussie !'))
-  .catch((err) => console.log('❌ Connexion à MongoDB échouée :', err.message));
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch((err) => console.log('Connexion à MongoDB échouée :', err.message));
 
 // ── Middlewares ───────────────────────────────────────────────
 app.use(cors());
@@ -33,5 +33,5 @@ app.get('*', (_req, res) => {
 
 // ── Démarrage du serveur ──────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+  console.log(`Serveur démarré sur http://localhost:${PORT}`);
 });
