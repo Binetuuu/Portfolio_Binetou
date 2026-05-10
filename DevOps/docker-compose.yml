@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Service MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: portfolio-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: Node
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - portfolio-network
+
+  # Service Backend
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: portfolio-backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URI: mongodb://mongodb:27017/Node
+    depends_on:
+      - mongodb
+    networks:
+      - portfolio-network
+
+  # Service Frontend
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: portfolio-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - portfolio-network
+
+# Volumes pour persister les données MongoDB
+volumes:
+  mongodb_data:
+
+# Réseau pour la communication entre conteneurs
+networks:
+  portfolio-network:
+    driver: bridge
