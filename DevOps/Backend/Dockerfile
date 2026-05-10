@@ -16,5 +16,5 @@ COPY . .
 # Exposer le port
 EXPOSE 3000
 
-# Commande de démarrage
-CMD ["npm", "start"]
+# Commande de démarrage (utiliser app.docker.js pour Docker)
+CMD ["node", "app.docker.js"]

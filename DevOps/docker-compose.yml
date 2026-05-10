@@ -20,6 +20,7 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
+    image: binetuuu/portfolio-backend:latest
     container_name: portfolio-backend
     restart: always
     ports:
