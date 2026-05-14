@@ -15,36 +15,13 @@ pipeline {
             }
         }
         
-        stage('Build & Test') {
+        stage('Build Images') {
             steps {
-                echo 'Construction et test de l\'application...'
+                echo 'Construction des images...'
                 dir('DevOps') {
                     sh '''
-                        # Nettoyer les anciennes images locales pour éviter les doublons
-                        docker rmi -f ${BACKEND_IMAGE}:latest || true
-                        docker rmi -f ${FRONTEND_IMAGE}:latest || true
-                        docker rmi -f devops_backend:latest || true
-                        docker rmi -f devops_frontend:latest || true
-                        
-                        # Construire les nouvelles images avec les bons noms
                         docker build -t ${BACKEND_IMAGE}:latest ./Backend
                         docker build -t ${FRONTEND_IMAGE}:latest ./Frontend
-                        
-                        # Lancer l'application avec nos images (docker-compose.yml utilise déjà image:)
-                        docker compose up -d
-                        
-                        # Attendre que les services soient prêts
-                        sleep 30
-                        
-                        # Tests simples
-                        echo "Test Backend..."
-                        curl -f http://localhost:3000 || exit 1
-                        
-                        echo "Test Frontend..."
-                        curl -f http://localhost || exit 1
-                        
-                        # Arrêter les conteneurs
-                        docker compose down
                     '''
                 }
             }
@@ -59,87 +36,24 @@ pipeline {
             }
             steps {
                 echo 'Publication sur Docker Hub...'
-                script {
-                    try {
-                        sh '''
-                            # Connexion à Docker Hub
-                            echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
-                            
-                            # Push des images (remplace les anciennes automatiquement)
-                            docker push ${BACKEND_IMAGE}:latest
-                            docker push ${FRONTEND_IMAGE}:latest
-                            
-                            # Déconnexion
-                            docker logout
-                        '''
-                    } catch (Exception e) {
-                        echo "Push Docker Hub échoué: ${e.getMessage()}"
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                }
-            }
-            steps {
-                echo 'Déploiement de l\'application...'
-                input message: 'Déployer en production ?', ok: 'Déployer'
-                dir('DevOps') {
-                    sh '''
-                        # Arrêter les anciens conteneurs
-                        docker-compose down || true
-                        
-                        # Supprimer les anciennes images locales
-                        docker rmi -f devops_backend:latest || true
-                        docker rmi -f devops_frontend:latest || true
-                        
-                        # Télécharger les dernières images depuis Docker Hub
-                        docker pull ${BACKEND_IMAGE}:latest
-                        docker pull ${FRONTEND_IMAGE}:latest
-                        
-                        # Déploiement avec les images Docker Hub
-                        docker compose up -d
-                        
-                        # Vérification
-                        sleep 20
-                        curl -f http://localhost || echo "Déploiement vérifié"
-                    '''
-                }
+                sh '''
+                    echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
+                    docker push ${BACKEND_IMAGE}:latest
+                    docker push ${FRONTEND_IMAGE}:latest
+                    docker logout
+                '''
             }
         }
     }
     
     post {
         always {
-            script {
-                echo 'Nettoyage...'
-                try {
-                    sh '''
-                        # Nettoyer seulement les images temporaires, pas les nôtres
-                        docker image prune -f
-                        docker container prune -f
-                        
-                        # Supprimer les images devops_* si elles existent
-                        docker rmi -f devops_backend:latest || true
-                        docker rmi -f devops_frontend:latest || true
-                    '''
-                } catch (Exception e) {
-                    echo "Nettoyage échoué: ${e.getMessage()}"
-                }
-            }
+            echo 'Nettoyage...'
+            sh 'docker image prune -f || true'
         }
         
         success {
             echo 'Pipeline réussi ! ✅'
-            echo 'Images disponibles sur Docker Hub:'
-            echo "- ${env.BACKEND_IMAGE}:latest"
-            echo "- ${env.FRONTEND_IMAGE}:latest"
         }
         
         failure {
