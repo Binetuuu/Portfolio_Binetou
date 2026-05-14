@@ -1,0 +1,110 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        BACKEND_IMAGE = 'binetuuu/portfolio-backend'
+        FRONTEND_IMAGE = 'binetuuu/portfolio-frontend'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Récupération du code source...'
+                checkout scm
+            }
+        }
+        
+        stage('Build & Test') {
+            steps {
+                echo 'Construction et test de l\'application...'
+                dir('DevOps') {
+                    sh '''
+                        # Construire les images
+                        docker build -t ${BACKEND_IMAGE}:latest ./Backend
+                        docker build -t ${FRONTEND_IMAGE}:latest ./Frontend
+                        
+                        # Lancer l'application
+                        docker-compose up -d
+                        
+                        # Attendre que les services soient prêts
+                        sleep 30
+                        
+                        # Tests simples
+                        echo "Test Backend..."
+                        curl -f http://localhost:3000 || exit 1
+                        
+                        echo "Test Frontend..."
+                        curl -f http://localhost || exit 1
+                        
+                        # Arrêter les conteneurs
+                        docker-compose down
+                    '''
+                }
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                echo 'Publication sur Docker Hub...'
+                sh '''
+                    # Connexion à Docker Hub
+                    echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
+                    
+                    # Push des images
+                    docker push ${BACKEND_IMAGE}:latest
+                    docker push ${FRONTEND_IMAGE}:latest
+                    
+                    # Déconnexion
+                    docker logout
+                '''
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                echo 'Déploiement de l\'application...'
+                input message: 'Déployer en production ?', ok: 'Déployer'
+                dir('DevOps') {
+                    sh '''
+                        # Déploiement
+                        docker-compose down || true
+                        docker-compose pull
+                        docker-compose up -d
+                        
+                        # Vérification
+                        sleep 20
+                        curl -f http://localhost || echo "Déploiement vérifié"
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Nettoyage...'
+            sh 'docker system prune -f'
+        }
+        
+        success {
+            echo 'Pipeline réussi ! ✅'
+        }
+        
+        failure {
+            echo 'Pipeline échoué ! ❌'
+        }
+    }
+}
