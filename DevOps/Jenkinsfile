@@ -53,17 +53,24 @@ pipeline {
             }
             steps {
                 echo 'Publication sur Docker Hub...'
-                sh '''
-                    # Connexion à Docker Hub
-                    echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
-                    
-                    # Push des images
-                    docker push ${BACKEND_IMAGE}:latest
-                    docker push ${FRONTEND_IMAGE}:latest
-                    
-                    # Déconnexion
-                    docker logout
-                '''
+                script {
+                    try {
+                        sh '''
+                            # Connexion à Docker Hub
+                            echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
+                            
+                            # Push des images
+                            docker push ${BACKEND_IMAGE}:latest
+                            docker push ${FRONTEND_IMAGE}:latest
+                            
+                            # Déconnexion
+                            docker logout
+                        '''
+                    } catch (Exception e) {
+                        echo "Push Docker Hub échoué: ${e.getMessage()}"
+                        echo "Continuez sans Docker Hub pour les tests..."
+                    }
+                }
             }
         }
         
@@ -95,8 +102,14 @@ pipeline {
     
     post {
         always {
-            echo 'Nettoyage...'
-            sh 'docker system prune -f'
+            script {
+                echo 'Nettoyage...'
+                try {
+                    sh 'docker system prune -f'
+                } catch (Exception e) {
+                    echo "Nettoyage échoué: ${e.getMessage()}"
+                }
+            }
         }
         
         success {
