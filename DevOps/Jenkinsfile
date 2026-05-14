@@ -20,11 +20,24 @@ pipeline {
                 echo 'Construction et test de l\'application...'
                 dir('DevOps') {
                     sh '''
-                        # Construire les images
+                        # Nettoyer les anciennes images locales pour éviter les doublons
+                        docker rmi -f ${BACKEND_IMAGE}:latest || true
+                        docker rmi -f ${FRONTEND_IMAGE}:latest || true
+                        docker rmi -f devops_backend:latest || true
+                        docker rmi -f devops_frontend:latest || true
+                        
+                        # Construire les nouvelles images avec les bons noms
                         docker build -t ${BACKEND_IMAGE}:latest ./Backend
                         docker build -t ${FRONTEND_IMAGE}:latest ./Frontend
                         
-                        # Lancer l'application
+                        # Modifier docker-compose.yml pour utiliser nos images
+                        sed -i 's|build:|#build:|g' docker-compose.yml
+                        sed -i 's|context: ./Backend|#context: ./Backend|g' docker-compose.yml
+                        sed -i 's|dockerfile: Dockerfile|#dockerfile: Dockerfile|g' docker-compose.yml
+                        sed -i '/backend:/a\\    image: ${BACKEND_IMAGE}:latest' docker-compose.yml
+                        sed -i '/frontend:/a\\    image: ${FRONTEND_IMAGE}:latest' docker-compose.yml
+                        
+                        # Lancer l'application avec nos images
                         docker-compose up -d
                         
                         # Attendre que les services soient prêts
@@ -39,6 +52,9 @@ pipeline {
                         
                         # Arrêter les conteneurs
                         docker-compose down
+                        
+                        # Restaurer docker-compose.yml original
+                        git checkout docker-compose.yml
                     '''
                 }
             }
@@ -59,7 +75,7 @@ pipeline {
                             # Connexion à Docker Hub
                             echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
                             
-                            # Push des images
+                            # Push des images (remplace les anciennes automatiquement)
                             docker push ${BACKEND_IMAGE}:latest
                             docker push ${FRONTEND_IMAGE}:latest
                             
@@ -68,7 +84,7 @@ pipeline {
                         '''
                     } catch (Exception e) {
                         echo "Push Docker Hub échoué: ${e.getMessage()}"
-                        echo "Continuez sans Docker Hub pour les tests..."
+                        currentBuild.result = 'UNSTABLE'
                     }
                 }
             }
@@ -86,9 +102,18 @@ pipeline {
                 input message: 'Déployer en production ?', ok: 'Déployer'
                 dir('DevOps') {
                     sh '''
-                        # Déploiement
+                        # Arrêter les anciens conteneurs
                         docker-compose down || true
-                        docker-compose pull
+                        
+                        # Supprimer les anciennes images locales
+                        docker rmi -f devops_backend:latest || true
+                        docker rmi -f devops_frontend:latest || true
+                        
+                        # Télécharger les dernières images depuis Docker Hub
+                        docker pull ${BACKEND_IMAGE}:latest
+                        docker pull ${FRONTEND_IMAGE}:latest
+                        
+                        # Déploiement avec les images Docker Hub
                         docker-compose up -d
                         
                         # Vérification
@@ -105,7 +130,15 @@ pipeline {
             script {
                 echo 'Nettoyage...'
                 try {
-                    sh 'docker system prune -f'
+                    sh '''
+                        # Nettoyer seulement les images temporaires, pas les nôtres
+                        docker image prune -f
+                        docker container prune -f
+                        
+                        # Supprimer les images devops_* si elles existent
+                        docker rmi -f devops_backend:latest || true
+                        docker rmi -f devops_frontend:latest || true
+                    '''
                 } catch (Exception e) {
                     echo "Nettoyage échoué: ${e.getMessage()}"
                 }
@@ -114,6 +147,9 @@ pipeline {
         
         success {
             echo 'Pipeline réussi ! ✅'
+            echo 'Images disponibles sur Docker Hub:'
+            echo "- ${env.BACKEND_IMAGE}:latest"
+            echo "- ${env.FRONTEND_IMAGE}:latest"
         }
         
         failure {
