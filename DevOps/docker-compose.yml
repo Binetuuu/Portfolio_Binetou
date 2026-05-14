@@ -17,9 +17,6 @@ services:
 
   # Service Backend
   backend:
-    build:
-      context: ./Backend
-      dockerfile: Dockerfile
     image: binetuuu/portfolio-backend:latest
     container_name: portfolio-backend
     restart: always
@@ -35,9 +32,7 @@ services:
 
   # Service Frontend
   frontend:
-    build:
-      context: ./Frontend
-      dockerfile: Dockerfile
+    image: binetuuu/portfolio-frontend:latest
     container_name: portfolio-frontend
     restart: always
     ports:

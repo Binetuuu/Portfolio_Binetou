@@ -30,14 +30,7 @@ pipeline {
                         docker build -t ${BACKEND_IMAGE}:latest ./Backend
                         docker build -t ${FRONTEND_IMAGE}:latest ./Frontend
                         
-                        # Modifier docker-compose.yml pour utiliser nos images
-                        sed -i 's|build:|#build:|g' docker-compose.yml
-                        sed -i 's|context: ./Backend|#context: ./Backend|g' docker-compose.yml
-                        sed -i 's|dockerfile: Dockerfile|#dockerfile: Dockerfile|g' docker-compose.yml
-                        sed -i '/backend:/a\\    image: ${BACKEND_IMAGE}:latest' docker-compose.yml
-                        sed -i '/frontend:/a\\    image: ${FRONTEND_IMAGE}:latest' docker-compose.yml
-                        
-                        # Lancer l'application avec nos images
+                        # Lancer l'application avec nos images (docker-compose.yml utilise déjà image:)
                         docker compose up -d
                         
                         # Attendre que les services soient prêts
@@ -51,10 +44,7 @@ pipeline {
                         curl -f http://localhost || exit 1
                         
                         # Arrêter les conteneurs
-                        docker-compose down
-                        
-                        # Restaurer docker-compose.yml original
-                        git checkout docker-compose.yml
+                        docker compose down
                     '''
                 }
             }
