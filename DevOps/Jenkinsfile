@@ -1,63 +1,95 @@
 pipeline {
     agent any
-    
+
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-        BACKEND_IMAGE = 'binetuuu/portfolio-backend'
-        FRONTEND_IMAGE = 'binetuuu/portfolio-frontend'
+        BACKEND_IMAGE  = "binetuuu/portfolio-backend"
+        FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
     }
-    
+
     stages {
-        stage('Checkout') {
+
+        stage('Clone Repository') {
             steps {
-                echo 'Récupération du code source...'
-                checkout scm
+                git branch: 'main',
+                    credentialsId: 'github_creds',
+                    url: 'https://github.com/Binetuuu/Portfolio_Binetou.git'
             }
         }
-        
-        stage('Build Images') {
+
+        stage('Build Backend') {
             steps {
-                echo 'Construction des images...'
-                dir('DevOps') {
-                    sh '''
-                        docker build -t ${BACKEND_IMAGE}:latest ./Backend
-                        docker build -t ${FRONTEND_IMAGE}:latest ./Frontend
-                    '''
+                dir('DevOps/Backend') {
+                    sh 'docker build -t $BACKEND_IMAGE:latest .'
                 }
             }
         }
-        
+
+        stage('Build Frontend') {
+            steps {
+                dir('DevOps/Frontend') {
+                    sh 'docker build -t $FRONTEND_IMAGE:latest .'
+                }
+            }
+        }
+
         stage('Push to Docker Hub') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                }
-            }
             steps {
-                echo 'Publication sur Docker Hub...'
                 sh '''
                     echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
-                    docker push ${BACKEND_IMAGE}:latest
-                    docker push ${FRONTEND_IMAGE}:latest
+                    docker push $BACKEND_IMAGE:latest
+                    docker push $FRONTEND_IMAGE:latest
                     docker logout
                 '''
             }
         }
+
+        stage('Start Containers') {
+            steps {
+                withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
+                    dir('DevOps') {
+                        sh 'cp $ENV_FILE .env'
+                        sh 'docker compose down'
+                        sh 'docker compose --env-file .env up -d'
+                        sh 'rm -f .env'
+                    }
+                }
+            }
+        }
+
+        stage('Verify Containers') {
+            steps {
+                sh 'docker ps'
+            }
+        }
     }
-    
+
     post {
-        always {
-            echo 'Nettoyage...'
-            sh 'docker image prune -f || true'
-        }
-        
         success {
-            echo 'Pipeline réussi ! ✅'
+            echo 'Déploiement réussi !'
+            emailext (
+                subject: "✅ SUCCESS: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Déploiement réussi !</h2>
+                    <p>Job: ${env.JOB_NAME}</p>
+                    <p>Build: #${env.BUILD_NUMBER}</p>
+                    <p>Backend + Frontend déployés avec succès</p>
+                """,
+                to: "seye10bineta@gmail.com"
+            )
         }
-        
         failure {
-            echo 'Pipeline échoué ! ❌'
+            echo 'Pipeline échoué !'
+            emailext (
+                subject: "❌ FAILURE: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Le pipeline a échoué !</h2>
+                    <p>Job: ${env.JOB_NAME}</p>
+                    <p>Build: #${env.BUILD_NUMBER}</p>
+                    <p>Vérifier les logs Jenkins pour plus de détails.</p>
+                """,
+                to: "seye10bineta@gmail.com"
+            )
         }
     }
 }
