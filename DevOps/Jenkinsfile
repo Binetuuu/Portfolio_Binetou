@@ -49,8 +49,8 @@ pipeline {
                 withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
                     dir('DevOps') {
                         sh 'cp $ENV_FILE .env'
-                        sh 'docker compose down'
-                        sh 'docker compose --env-file .env up -d'
+                        sh 'docker-compose down'
+                        sh 'docker-compose --env-file .env up -d'
                         sh 'rm -f .env'
                     }
                 }
