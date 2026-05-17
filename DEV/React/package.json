@@ -15,7 +15,15 @@
     "dev": "concurrently \"npm run server\" \"npm run start\""
   },
   "browserslist": {
-    "production": [">0.2%", "not dead"],
-    "development": ["last 1 chrome version"]
+    "production": [
+      ">0.2%",
+      "not dead"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
