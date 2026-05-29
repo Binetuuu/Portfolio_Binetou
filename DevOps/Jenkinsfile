@@ -1,0 +1,98 @@
+<<<<<<< HEAD
+=======
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        BACKEND_IMAGE  = "binetuuu/portfolio-backend"
+        FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
+    }
+
+    stages {
+
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'github_creds',
+                    url: 'https://github.com/Binetuuu/Portfolio_Binetou.git'
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
+                dir('DevOps/Backend') {
+                    sh 'docker build -t $BACKEND_IMAGE:latest .'
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                dir('DevOps/Frontend') {
+                    sh 'docker build -t $FRONTEND_IMAGE:latest .'
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                sh '''
+                    echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
+                    docker push $BACKEND_IMAGE:latest
+                    docker push $FRONTEND_IMAGE:latest
+                    docker logout
+                '''
+            }
+        }
+
+        stage('Start Containers') {
+            steps {
+                withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
+                    dir('DevOps') {
+                        sh 'cp $ENV_FILE .env'
+                        sh 'docker-compose down'
+                        sh 'docker-compose --env-file .env up -d'
+                        sh 'rm -f .env'
+                    }
+                }
+            }
+        }
+
+        stage('Verify Containers') {
+            steps {
+                sh 'docker ps'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Déploiement réussi !'
+            emailext (
+                subject: "✅ SUCCESS: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Déploiement réussi !</h2>
+                    <p>Job: ${env.JOB_NAME}</p>
+                    <p>Build: #${env.BUILD_NUMBER}</p>
+                    <p>Backend + Frontend déployés avec succès</p>
+                """,
+                to: "seye10bineta@gmail.com"
+            )
+        }
+        failure {
+            echo 'Pipeline échoué !'
+            emailext (
+                subject: "❌ FAILURE: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Le pipeline a échoué !</h2>
+                    <p>Job: ${env.JOB_NAME}</p>
+                    <p>Build: #${env.BUILD_NUMBER}</p>
+                    <p>Vérifier les logs Jenkins pour plus de détails.</p>
+                """,
+                to: "seye10bineta@gmail.com"
+            )
+        }
+    }
+}
+>>>>>>> 12a242c74af92032331f750949a379989fa56573
