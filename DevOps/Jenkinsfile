@@ -19,20 +19,21 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                dir('DevOps') {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=portfolio-project \
-                          -Dsonar.sources=Backend \
-                          -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/** \
-                          -Dsonar.host.url=${SONAR_HOST_URL} \
-                          -Dsonar.token=${SONAR_TOKEN}
-                    '''
-                }
-            }
-        }
+     stage('SonarQube Analysis') {
+         steps {
+            script {
+               def scannerHome = tool 'SonarScanner'
+
+                withSonarQubeEnv('SonarQube') {
+                     sh """
+                         ${scannerHome}/bin/sonar-scanner \
+                         -Dsonar.projectKey=portfolio-project \
+                         -Dsonar.sources=Backend
+                     """
+                    }
+                 }
+             }
+         }
 
         stage('Quality Gate') {
             steps {
