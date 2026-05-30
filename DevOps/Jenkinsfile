@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 pipeline {
     agent any
 
@@ -7,6 +5,8 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
+        SONAR_HOST_URL = "http://localhost:9000"
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -16,6 +16,29 @@ pipeline {
                 git branch: 'main',
                     credentialsId: 'github_creds',
                     url: 'https://github.com/Binetuuu/Portfolio_Binetou.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                dir('DevOps') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=portfolio-project \
+                          -Dsonar.sources=Backend \
+                          -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/** \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.token=${SONAR_TOKEN}
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
@@ -51,8 +74,8 @@ pipeline {
                 withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
                     dir('DevOps') {
                         sh 'cp $ENV_FILE .env'
-                        sh 'docker-compose down'
-                        sh 'docker-compose --env-file .env up -d'
+                        sh 'docker compose down'
+                        sh 'docker compose --env-file .env up -d'
                         sh 'rm -f .env'
                     }
                 }
@@ -76,6 +99,7 @@ pipeline {
                     <p>Job: ${env.JOB_NAME}</p>
                     <p>Build: #${env.BUILD_NUMBER}</p>
                     <p>Backend + Frontend déployés avec succès</p>
+                    <p>Rapport SonarQube: ${SONAR_HOST_URL}/dashboard?id=portfolio-project</p>
                 """,
                 to: "seye10bineta@gmail.com"
             )
@@ -95,4 +119,4 @@ pipeline {
         }
     }
 }
->>>>>>> 12a242c74af92032331f750949a379989fa56573
+
