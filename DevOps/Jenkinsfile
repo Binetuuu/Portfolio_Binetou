@@ -19,22 +19,23 @@ pipeline {
             }
         }
 
-     stage('SonarQube Analysis') {
-         steps {
-            script {
-               def scannerHome = tool 'SonarScanner'
 
-                withSonarQubeEnv('SonarQube') {
+     stage('SonarQube Analysis') {
+          steps {
+              script {
+                 def scannerHome = tool 'SonarScanner'
+
+                 withSonarQubeEnv('SonarQube') {
                      sh """
                          ${scannerHome}/bin/sonar-scanner \
                          -Dsonar.projectKey=portfolio-project \
-                         -Dsonar.sources=Backend
-                     """
-                    }
+                         -Dsonar.sources=Backend \
+                         -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/**
+                    """
                  }
              }
          }
-
+      }
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
