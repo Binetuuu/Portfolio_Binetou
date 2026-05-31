@@ -102,7 +102,7 @@ pipeline {
                     <p>Job: ${env.JOB_NAME}</p>
                     <p>Build: #${env.BUILD_NUMBER}</p>
                     <p>Backend + Frontend déployés avec succès</p>
-                    <p>Rapport SonarQube: ${SONAR_HOST_URL}/dashboard?id=portfolio-project</p>
+                    <p>Rapport SonarQube: ${SONAR_URL}/dashboard?id=portfolio-project</p>
                 """,
                 to: "seye10bineta@gmail.com"
             )
