@@ -1,40 +1,6 @@
 version: '3.8'
 
 services:
-  # Service SonarQube
-  sonarqube:
-    image: sonarqube:latest
-    container_name: portfolio-sonarqube
-    restart: always
-    ports:
-      - "9000:9000"
-    environment:
-      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube
-      SONAR_JDBC_USERNAME: sonar
-      SONAR_JDBC_PASSWORD: sonar
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_logs:/opt/sonarqube/logs
-      - sonarqube_extensions:/opt/sonarqube/extensions
-    depends_on:
-      - postgres
-    networks:
-      - portfolio-network
-
-  # Service PostgreSQL pour SonarQube
-  postgres:
-    image: postgres:15-alpine
-    container_name: portfolio-postgres
-    restart: always
-    environment:
-      POSTGRES_DB: sonarqube
-      POSTGRES_USER: sonar
-      POSTGRES_PASSWORD: sonar
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - portfolio-network
-
   # Service MongoDB
   mongodb:
     image: mongo:latest
