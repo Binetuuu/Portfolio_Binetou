@@ -72,15 +72,6 @@ pipeline {
             }
         }
 
-        stage('Load Images to Kind') {
-            steps {
-                sh '''
-                    kind load docker-image $BACKEND_IMAGE:latest --name $KIND_CLUSTER
-                    kind load docker-image $FRONTEND_IMAGE:latest --name $KIND_CLUSTER
-                '''
-            }
-        }
-
         stage('Deploy to Kubernetes') {
             steps {
                 dir('DevOps/kubernetes') {
