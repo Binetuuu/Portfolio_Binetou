@@ -5,8 +5,10 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
-        SONAR_URL = 'http://172.17.0.2:9000'
-        SONAR_TOKEN = credentials('sonarqube-token')
+        SONAR_HOST_URL = "http://localhost:9000"
+        SONAR_TOKEN = credentials('sonar-token')
+        KIND_CLUSTER = "portfolio"
+        KUBECONFIG = credentials('kubeconfig-portfolio')
     }
 
     stages {
@@ -19,24 +21,21 @@ pipeline {
             }
         }
 
-
-    stage('SonarQube Analysis') {
-    steps {
-        dir('DevOps') {
-            script {
-                def scannerHome = tool 'SonarScanner'
-
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=portfolio-project \
-                        -Dsonar.sources=Backend
-                    """
+        stage('SonarQube Analysis') {
+            steps {
+                dir('DevOps') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=portfolio-project \
+                          -Dsonar.sources=Backend \
+                          -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/** \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.token=${SONAR_TOKEN}
+                    '''
                 }
             }
         }
-    }
-}
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -72,47 +71,84 @@ pipeline {
             }
         }
 
-        stage('Start Containers') {
+        stage('Load Images to Kind') {
             steps {
-                withCredentials([file(credentialsId: 'portfolio-env', variable: 'ENV_FILE')]) {
-                    dir('DevOps') {
-                        sh 'cp $ENV_FILE .env'
-                        sh 'docker-compose down'
-                        sh 'docker-compose --env-file .env up -d'
-                        sh 'rm -f .env'
-                    }
+                sh '''
+                    kind load docker-image $BACKEND_IMAGE:latest --name $KIND_CLUSTER
+                    kind load docker-image $FRONTEND_IMAGE:latest --name $KIND_CLUSTER
+                '''
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('DevOps/kubernetes') {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        
+                        # Créer le namespace
+                        kubectl apply -f namespace.yaml
+                        
+                        # Déployer MongoDB
+                        kubectl apply -f mongodb-deployment.yaml
+                        kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
+                        
+                        # Déployer le Backend
+                        kubectl apply -f backend-deployment.yaml
+                        kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
+                        
+                        # Déployer le Frontend
+                        kubectl apply -f frontend-deployment.yaml
+                        kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
+                        
+                        # Créer l'Ingress
+                        kubectl apply -f ingress.yaml
+                    '''
                 }
             }
         }
 
-        stage('Verify Containers') {
+        stage('Verify Deployment') {
             steps {
-                sh 'docker ps'
+                sh '''
+                    export KUBECONFIG=$KUBECONFIG
+                    echo "✅ Pods actifs:"
+                    kubectl get pods -n portfolio
+                    
+                    echo ""
+                    echo "✅ Services:"
+                    kubectl get svc -n portfolio
+                    
+                    echo ""
+                    echo "✅ Ingress:"
+                    kubectl get ingress -n portfolio
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Déploiement réussi !'
+            echo 'Déploiement Kubernetes réussi !'
             emailext (
-                subject: "✅ SUCCESS: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                subject: "✅ SUCCESS: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                    <h2>Déploiement réussi !</h2>
+                    <h2>Déploiement Kubernetes réussi !</h2>
                     <p>Job: ${env.JOB_NAME}</p>
                     <p>Build: #${env.BUILD_NUMBER}</p>
-                    <p>Backend + Frontend déployés avec succès</p>
-                    <p>Rapport SonarQube: ${SONAR_URL}/dashboard?id=portfolio-project</p>
+                    <p>Backend + Frontend déployés sur le cluster Kind</p>
+                    <p>Cluster: ${KIND_CLUSTER}</p>
+                    <p>Accédez aux services via port-forward</p>
                 """,
                 to: "seye10bineta@gmail.com"
             )
         }
         failure {
-            echo 'Pipeline échoué !'
+            echo 'Déploiement échoué !'
             emailext (
-                subject: "❌ FAILURE: Pipeline ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                subject: "❌ FAILURE: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                    <h2>Le pipeline a échoué !</h2>
+                    <h2>Le déploiement Kubernetes a échoué !</h2>
                     <p>Job: ${env.JOB_NAME}</p>
                     <p>Build: #${env.BUILD_NUMBER}</p>
                     <p>Vérifier les logs Jenkins pour plus de détails.</p>
