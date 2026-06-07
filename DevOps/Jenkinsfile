@@ -6,9 +6,8 @@ pipeline {
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
         SONAR_HOST_URL = "http://localhost:9000"
-        SONAR_TOKEN = credentials('sonarqube-token')
-        KIND_CLUSTER = "portfolio"
-        KUBECONFIG = credentials('kubeconfig-portfolio')
+        SONAR_TOKEN = credentials('sonar-token')
+         KUBECONFIG = credentials('kubeconfig-portfolio')
     }
 
     stages {
