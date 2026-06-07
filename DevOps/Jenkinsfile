@@ -23,7 +23,7 @@ pipeline {
       stage('SonarQube Analysis') {
           steps {
              dir('DevOps') {
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('sonarQube') {
                   sh """
                     ${tool 'SonarScanner'}/bin/sonar-scanner \
                       -Dsonar.projectKey=portfolio-project \
