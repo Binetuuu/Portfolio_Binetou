@@ -6,7 +6,7 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
-        SONAR_HOST_URL = "http://172.17.0.2:9000"
+        SONAR_HOST_URL = "http://172.17.0.3:9000"
         SONAR_TOKEN = credentials('sonarqube-token')
         KUBECONFIG = credentials('kubeconfig-portfolio')
     }
