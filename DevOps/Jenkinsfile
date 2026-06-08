@@ -73,23 +73,29 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                dir('DevOps/kubernetes') {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG
-                        kubectl apply -f namespace.yaml
-                        kubectl apply -f mongodb-deployment.yaml
-                        kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
-                        kubectl apply -f backend-deployment.yaml
-                        kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
-                        kubectl apply -f frontend-deployment.yaml
-                        kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
-                        kubectl apply -f ingress.yaml
-                    '''
-                }
+          steps {
+             dir('DevOps/kubernetes') {
+                withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
+                  sh '''
+                    kubectl get nodes
+
+                    kubectl apply -f namespace.yaml
+                    kubectl apply -f mongodb-deployment.yaml
+
+                    kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
+
+                    kubectl apply -f backend-deployment.yaml
+                    kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
+
+                    kubectl apply -f frontend-deployment.yaml
+                    kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
+
+                    kubectl apply -f ingress.yaml
+                '''
             }
         }
-
+    }
+}
         stage('Verify Deployment') {
             steps {
                 sh '''
