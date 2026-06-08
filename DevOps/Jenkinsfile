@@ -6,13 +6,12 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
-        SONAR_HOST_URL = "http://localhost:9000"
+        SONAR_HOST_URL = "http://172.17.0.2:9000"
         SONAR_TOKEN = credentials('sonarqube-token')
         KUBECONFIG = credentials('kubeconfig-portfolio')
     }
 
     stages {
-
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
@@ -21,22 +20,23 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
-          steps {
-             dir('DevOps') {
-                withSonarQubeEnv('SonarQube') {
-                  sh """
-                    ${tool 'SonarScanner'}/bin/sonar-scanner \
-                      -Dsonar.projectKey=portfolio-project \
-                      -Dsonar.sources=Backend \
-                      -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/** \
-                      -Dsonar.host.url=${SONAR_HOST_URL} \
-                      -Dsonar.token=${SONAR_TOKEN}
-                """
+        stage('SonarQube Analysis') {
+            steps {
+                dir('DevOps') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            ${tool 'SonarScanner'}/bin/sonar-scanner \
+                              -Dsonar.projectKey=portfolio-project \
+                              -Dsonar.sources=Backend \
+                              -Dsonar.exclusions=Backend/node_modules/**,Backend/.git/**,Backend/dist/**,Backend/coverage/** \
+                              -Dsonar.host.url=${SONAR_HOST_URL} \
+                              -Dsonar.token=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
-    }
-}
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -77,23 +77,13 @@ pipeline {
                 dir('DevOps/kubernetes') {
                     sh '''
                         export KUBECONFIG=$KUBECONFIG
-                        
-                        # Créer le namespace
                         kubectl apply -f namespace.yaml
-                        
-                        # Déployer MongoDB
                         kubectl apply -f mongodb-deployment.yaml
                         kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
-                        
-                        # Déployer le Backend
                         kubectl apply -f backend-deployment.yaml
                         kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
-                        
-                        # Déployer le Frontend
                         kubectl apply -f frontend-deployment.yaml
                         kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
-                        
-                        # Créer l'Ingress
                         kubectl apply -f ingress.yaml
                     '''
                 }
@@ -106,12 +96,8 @@ pipeline {
                     export KUBECONFIG=$KUBECONFIG
                     echo "✅ Pods actifs:"
                     kubectl get pods -n portfolio
-                    
-                    echo ""
                     echo "✅ Services:"
                     kubectl get svc -n portfolio
-                    
-                    echo ""
                     echo "✅ Ingress:"
                     kubectl get ingress -n portfolio
                 '''
@@ -124,14 +110,7 @@ pipeline {
             echo 'Déploiement Kubernetes réussi !'
             emailext (
                 subject: "✅ SUCCESS: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    <h2>Déploiement Kubernetes réussi !</h2>
-                    <p>Job: ${env.JOB_NAME}</p>
-                    <p>Build: #${env.BUILD_NUMBER}</p>
-                    <p>Backend + Frontend déployés sur le cluster Kind</p>
-                    <p>Cluster: ${KIND_CLUSTER}</p>
-                    <p>Accédez aux services via port-forward</p>
-                """,
+                body: "<h2>Déploiement réussi !</h2><p>Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>",
                 to: "seye10bineta@gmail.com"
             )
         }
@@ -139,15 +118,9 @@ pipeline {
             echo 'Déploiement échoué !'
             emailext (
                 subject: "❌ FAILURE: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    <h2>Le déploiement Kubernetes a échoué !</h2>
-                    <p>Job: ${env.JOB_NAME}</p>
-                    <p>Build: #${env.BUILD_NUMBER}</p>
-                    <p>Vérifier les logs Jenkins pour plus de détails.</p>
-                """,
+                body: "<h2>Déploiement échoué !</h2><p>Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>",
                 to: "seye10bineta@gmail.com"
             )
         }
     }
-}
-
+} 
