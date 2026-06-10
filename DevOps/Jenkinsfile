@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        KIND_CLUSTER = "portfolio"
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         BACKEND_IMAGE  = "binetuuu/portfolio-backend"
         FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
@@ -73,33 +72,31 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-          steps {
-             dir('DevOps/kubernetes') {
-                withEnv(["KUBECONFIG=/var/jenkins_home/.kube/config"]) {
-                  sh '''
-                    kubectl get nodes
+            steps {
+                dir('DevOps/kubernetes') {
+                    sh '''
+                        kubectl get nodes
 
-                    kubectl apply -f namespace.yaml
-                    kubectl apply -f mongodb-deployment.yaml
+                        kubectl apply -f namespace.yaml
+                        kubectl apply -f mongodb-deployment.yaml
 
-                    kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
+                        kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
 
-                    kubectl apply -f backend-deployment.yaml
-                    kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
+                        kubectl apply -f backend-deployment.yaml
+                        kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
 
-                    kubectl apply -f frontend-deployment.yaml
-                    kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
+                        kubectl apply -f frontend-deployment.yaml
+                        kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
 
-                    kubectl apply -f ingress.yaml
-                '''
+                        kubectl apply -f ingress.yaml
+                    '''
+                }
             }
         }
-    }
-}
+
         stage('Verify Deployment') {
             steps {
                 sh '''
-                    export KUBECONFIG=$KUBECONFIG
                     echo "✅ Pods actifs:"
                     kubectl get pods -n portfolio
                     echo "✅ Services:"
@@ -129,4 +126,4 @@ pipeline {
             )
         }
     }
-} 
+}
