@@ -27,13 +27,20 @@ resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
-  tags = { Name = "${var.project}-vpc" }
+  tags = {
+    Name        = "${var.project}-vpc"
+    Owner       = "demo-terra"
+    Environment = "dev"
+  }
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
-  tags   = { Name = "${var.project}-igw" }
+  tags   = {
+    Name  = "${var.project}-igw"
+    Owner = "demo-terra"
+  }
 }
 
 # Subnet public
@@ -42,7 +49,10 @@ resource "aws_subnet" "public" {
   cidr_block              = var.subnet_cidr
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project}-subnet-public" }
+  tags = {
+    Name  = "${var.project}-subnet-public"
+    Owner = "demo-terra"
+  }
 }
 
 # Route table
@@ -52,7 +62,10 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.main.id
   }
-  tags = { Name = "${var.project}-rt-public" }
+  tags = {
+    Name  = "${var.project}-rt-public"
+    Owner = "demo-terra"
+  }
 }
 
 resource "aws_route_table_association" "public" {
@@ -78,7 +91,10 @@ resource "aws_security_group" "ec2" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = { Name = "${var.project}-sg-ec2" }
+  tags = {
+    Name  = "${var.project}-sg-ec2"
+    Owner = "demo-terra"
+  }
 }
 
 # Instance EC2
@@ -97,5 +113,8 @@ resource "aws_instance" "demo" {
     echo "<h1>Portfolio Binetou - Terraform OK !</h1>" > /var/www/html/index.html
   EOF
 
-  tags = { Name = "${var.project}-ec2" }
+  tags = {
+    Name  = "${var.project}-ec2"
+    Owner = "demo-terra"
+  }
 }
