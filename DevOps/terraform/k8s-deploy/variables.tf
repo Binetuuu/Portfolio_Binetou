@@ -6,7 +6,7 @@ variable "kubeconfig_path" {
 
 variable "kube_context" {
   description = "Contexte Kubernetes cible"
-  default     = "kind-portfolio"
+  default     = "minikube"
 }
 
 variable "namespace" {
