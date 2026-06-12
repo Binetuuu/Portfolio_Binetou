@@ -65,6 +65,7 @@ variable "frontend_nodeport" {
 variable "mongo_password" {
   description = "Mot de passe MongoDB"
   sensitive   = true
+  default     = "mongopass123"
 }
 
 # Réplicas
