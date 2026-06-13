@@ -3,14 +3,21 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
-        BACKEND_IMAGE  = "binetuuu/portfolio-backend"
-        FRONTEND_IMAGE = "binetuuu/portfolio-frontend"
-        SONAR_HOST_URL = "http://172.17.0.3:9000"
-        SONAR_TOKEN = credentials('sonarqube-token')
-        KUBECONFIG = credentials('kubeconfig-portfolio')
+        DOCKERHUB_USER         = "binetuuu"
+        BACKEND_IMAGE          = "binetuuu/portfolio-backend"
+        FRONTEND_IMAGE         = "binetuuu/portfolio-frontend"
+        SONAR_HOST_URL         = "http://172.17.0.3:9000"
+        SONAR_TOKEN            = credentials('sonarqube-token')
+        KUBECONFIG             = credentials('kubeconfig-portfolio')
+        K8S_NAMESPACE          = "portfolio"
+        TF_DIR                 = "DevOps/terraform/k8s-deploy"
     }
 
     stages {
+
+        // ─────────────────────────────────────────
+        // Clone du dépôt
+        // ─────────────────────────────────────────
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
@@ -19,6 +26,9 @@ pipeline {
             }
         }
 
+        // ─────────────────────────────────────────
+        // Analyse SonarQube
+        // ─────────────────────────────────────────
         stage('SonarQube Analysis') {
             steps {
                 dir('DevOps') {
@@ -36,6 +46,9 @@ pipeline {
             }
         }
 
+        // ─────────────────────────────────────────
+        // Quality Gate
+        // ─────────────────────────────────────────
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -44,10 +57,13 @@ pipeline {
             }
         }
 
+        // ─────────────────────────────────────────
+        // Build des images Docker
+        // ─────────────────────────────────────────
         stage('Build Backend') {
             steps {
                 dir('DevOps/Backend') {
-                    sh 'docker build -t $BACKEND_IMAGE:latest .'
+                    sh 'docker build -t $BACKEND_IMAGE:${BUILD_NUMBER} -t $BACKEND_IMAGE:latest .'
                 }
             }
         }
@@ -55,73 +71,153 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('DevOps/Frontend') {
-                    sh 'docker build -t $FRONTEND_IMAGE:latest .'
+                    sh 'docker build -t $FRONTEND_IMAGE:${BUILD_NUMBER} -t $FRONTEND_IMAGE:latest .'
                 }
             }
         }
 
+        // ─────────────────────────────────────────
+        // Push vers Docker Hub
+        // ─────────────────────────────────────────
         stage('Push to Docker Hub') {
             steps {
                 sh '''
                     echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin
+                    docker push $BACKEND_IMAGE:${BUILD_NUMBER}
                     docker push $BACKEND_IMAGE:latest
+                    docker push $FRONTEND_IMAGE:${BUILD_NUMBER}
                     docker push $FRONTEND_IMAGE:latest
                     docker logout
                 '''
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        // ─────────────────────────────────────────
+        // Terraform Init
+        // ─────────────────────────────────────────
+        stage('Terraform Init') {
             steps {
-                dir('DevOps/kubernetes') {
+                dir("${TF_DIR}") {
                     sh '''
-                        kubectl get nodes
-
-                        kubectl apply -f namespace.yaml
-                        kubectl apply -f mongodb-deployment.yaml
-
-                        kubectl wait --for=condition=ready pod -l app=mongodb -n portfolio --timeout=300s
-
-                        kubectl apply -f backend-deployment.yaml
-                        kubectl wait --for=condition=ready pod -l app=backend -n portfolio --timeout=300s
-
-                        kubectl apply -f frontend-deployment.yaml
-                        kubectl wait --for=condition=ready pod -l app=frontend -n portfolio --timeout=300s
-
-                        kubectl apply -f ingress.yaml
+                        terraform init -input=false
                     '''
                 }
             }
         }
 
+        // ─────────────────────────────────────────
+        // Terraform Plan
+        // ─────────────────────────────────────────
+        stage('Terraform Plan') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh '''
+                        terraform plan \
+                          -var="image_tag=${BUILD_NUMBER}" \
+                          -var="dockerhub_user=${DOCKERHUB_USER}" \
+                          -out=tfplan
+                    '''
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // 🚀 Terraform Apply
+        // Déploie l'application sur le cluster Kubernetes
+        // Remplace les anciens : kubectl apply -f K8s/*.yaml
+        //                        kubectl set image deployment/...
+        // ─────────────────────────────────────────
+        stage('Terraform Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh '''
+                        # Applique le plan sauvegardé (-auto-approve = pas de prompt "yes")
+                        terraform apply -auto-approve tfplan
+                    '''
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────
+        // ✅ Vérification du déploiement
+        // ─────────────────────────────────────────
         stage('Verify Deployment') {
             steps {
                 sh '''
-                    echo "✅ Pods actifs:"
-                    kubectl get pods -n portfolio
-                    echo "✅ Services:"
-                    kubectl get svc -n portfolio
-                    echo "✅ Ingress:"
-                    kubectl get ingress -n portfolio
+                    echo "=== Pods en cours ==="
+                    kubectl get pods -n $K8S_NAMESPACE
+
+                    echo ""
+                    echo "=== Services ==="
+                    kubectl get services -n $K8S_NAMESPACE
+
+                    echo ""
+                    echo "=== Attente que les pods soient Ready ==="
+                    kubectl rollout status deployment/portfolio-backend  -n $K8S_NAMESPACE --timeout=120s
+                    kubectl rollout status deployment/portfolio-frontend -n $K8S_NAMESPACE --timeout=120s
                 '''
             }
         }
     }
 
+    // ─────────────────────────────────────────
+    // Post-build : notifications email
+    // ─────────────────────────────────────────
     post {
         success {
-            echo 'Déploiement Kubernetes réussi !'
             emailext (
-                subject: "✅ SUCCESS: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "<h2>Déploiement réussi !</h2><p>Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>",
+                subject: "[Jenkins] Build #${env.BUILD_NUMBER} — SUCCESS ✅",
+                body: """Pipeline SUCCESS ✅
+
+Job      : ${env.JOB_NAME}
+Build    : #${env.BUILD_NUMBER}
+Duration : ${currentBuild.durationString}
+
+[Quality]
+SonarQube : PASSED ✅
+Report    : http://172.17.0.3:9000/dashboard?id=portfolio-project
+
+[Artifacts]
+Backend  : ${env.DOCKERHUB_USER}/portfolio-backend:${env.BUILD_NUMBER} pushed to Docker Hub
+Frontend : ${env.DOCKERHUB_USER}/portfolio-frontend:${env.BUILD_NUMBER} pushed to Docker Hub
+
+[Terraform]
+Déploiement effectué via Terraform ✅
+Image tag : ${env.BUILD_NUMBER}
+
+[Kubernetes]
+Pods     : kubectl get pods -n portfolio
+Frontend : http://localhost:30080
+
+[Console]
+${env.BUILD_URL}console
+""",
                 to: "seye10bineta@gmail.com"
             )
         }
+
         failure {
-            echo 'Déploiement échoué !'
+            echo 'Pipeline échoué ❌ — Rollback en cours...'
+            sh '''
+                kubectl rollout undo deployment/portfolio-backend  -n portfolio || true
+                kubectl rollout undo deployment/portfolio-frontend -n portfolio || true
+            '''
             emailext (
-                subject: "❌ FAILURE: Kubernetes Deployment ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "<h2>Déploiement échoué !</h2><p>Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}</p>",
+                subject: "[Jenkins] Build #${env.BUILD_NUMBER} — FAILURE ❌",
+                body: """Pipeline FAILURE ❌
+
+Job      : ${env.JOB_NAME}
+Build    : #${env.BUILD_NUMBER}
+Duration : ${currentBuild.durationString}
+
+Stage en échec : ${env.STAGE_NAME}
+
+[Kubernetes]
+Rollback automatique effectué vers la version précédente.
+
+[Console]
+${env.BUILD_URL}console
+""",
                 to: "seye10bineta@gmail.com"
             )
         }
