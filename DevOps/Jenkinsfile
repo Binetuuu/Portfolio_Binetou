@@ -109,17 +109,18 @@ pipeline {
         // Terraform Plan
         // ─────────────────────────────────────────
         stage('Terraform Plan') {
-            steps {
-                dir("${TF_DIR}") {
-                    sh '''
-                        terraform plan \
-                          -var="image_tag=${BUILD_NUMBER}" \
-                          -var="dockerhub_user=${DOCKERHUB_USER}" \
-                          -out=tfplan
-                    '''
-                }
-            }
+    steps {
+        dir("${TF_DIR}") {
+            sh '''
+                export TF_VAR_kubeconfig_path="$KUBECONFIG"
+                terraform plan \
+                  -var="image_tag=${BUILD_NUMBER}" \
+                  -var="dockerhub_user=${DOCKERHUB_USER}" \
+                  -out=tfplan
+            '''
         }
+    }
+}
 
         // ─────────────────────────────────────────
         // 🚀 Terraform Apply
@@ -128,15 +129,15 @@ pipeline {
         //                        kubectl set image deployment/...
         // ─────────────────────────────────────────
         stage('Terraform Apply') {
-            steps {
-                dir("${TF_DIR}") {
-                    sh '''
-                        # Applique le plan sauvegardé (-auto-approve = pas de prompt "yes")
-                        terraform apply -auto-approve tfplan
-                    '''
-                }
-            }
+    steps {
+        dir("${TF_DIR}") {
+            sh '''
+                export TF_VAR_kubeconfig_path="$KUBECONFIG"
+                terraform apply -auto-approve tfplan
+            '''
         }
+    }
+}
 
         // ─────────────────────────────────────────
         // ✅ Vérification du déploiement

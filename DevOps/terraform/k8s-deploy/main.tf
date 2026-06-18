@@ -13,12 +13,8 @@ terraform {
 }
 
 # Connexion au cluster via kubeconfig local
-locals {
-  kubeconfig_file = trimspace(getenv("KUBECONFIG")) != "" ? trimspace(getenv("KUBECONFIG")) : pathexpand(var.kubeconfig_path)
-}
-
 provider "kubernetes" {
-  config_path    = local.kubeconfig_file
+  config_path    = var.kubeconfig_path
   config_context = var.kube_context
 }
 # 1. Namespace
