@@ -1,5 +1,8 @@
-variable "namespace"      {}
-variable "mongo_password" { sensitive = true }
+variable "namespace" {}
+
+variable "mongo_password" {
+  sensitive = true
+}
 
 resource "kubernetes_stateful_set" "mongodb" {
   metadata {
@@ -12,12 +15,16 @@ resource "kubernetes_stateful_set" "mongodb" {
     replicas     = 1
 
     selector {
-      match_labels = { app = "mongodb" }
+      match_labels = {
+        app = "mongodb"
+      }
     }
 
     template {
       metadata {
-        labels = { app = "mongodb" }
+        labels = {
+          app = "mongodb"
+        }
       }
 
       spec {
@@ -29,13 +36,22 @@ resource "kubernetes_stateful_set" "mongodb" {
             container_port = 27017
           }
 
+          # Base de données créée au démarrage
           env {
             name  = "MONGO_INITDB_DATABASE"
             value = "portfolio"
           }
 
+          # Utilisateur administrateur MongoDB
+          env {
+            name  = "MONGO_INITDB_ROOT_USERNAME"
+            value = "admin"
+          }
+
+          # Mot de passe administrateur MongoDB
           env {
             name = "MONGO_INITDB_ROOT_PASSWORD"
+
             value_from {
               secret_key_ref {
                 name = "mongodb-secret"
@@ -49,6 +65,7 @@ resource "kubernetes_stateful_set" "mongodb" {
               cpu    = "250m"
               memory = "256Mi"
             }
+
             limits = {
               cpu    = "500m"
               memory = "512Mi"
@@ -57,16 +74,26 @@ resource "kubernetes_stateful_set" "mongodb" {
 
           liveness_probe {
             exec {
-              command = ["mongosh", "--eval", "db.adminCommand('ping')"]
+              command = [
+                "mongosh",
+                "--eval",
+                "db.adminCommand('ping')"
+              ]
             }
+
             initial_delay_seconds = 30
             period_seconds        = 10
           }
 
           readiness_probe {
             exec {
-              command = ["mongosh", "--eval", "db.adminCommand('ping')"]
+              command = [
+                "mongosh",
+                "--eval",
+                "db.adminCommand('ping')"
+              ]
             }
+
             initial_delay_seconds = 15
             period_seconds        = 5
           }
@@ -83,8 +110,10 @@ resource "kubernetes_stateful_set" "mongodb" {
       metadata {
         name = "mongodb-data"
       }
+
       spec {
         access_modes = ["ReadWriteOnce"]
+
         resources {
           requests = {
             storage = "1Gi"
