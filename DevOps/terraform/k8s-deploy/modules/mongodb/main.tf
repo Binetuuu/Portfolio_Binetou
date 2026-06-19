@@ -81,8 +81,10 @@ resource "kubernetes_stateful_set" "mongodb" {
               ]
             }
 
-            initial_delay_seconds = 30
-            period_seconds        = 10
+            initial_delay_seconds = 90
+            period_seconds        = 20
+            timeout_seconds       = 10
+            failure_threshold     = 3
           }
 
           readiness_probe {
@@ -94,8 +96,10 @@ resource "kubernetes_stateful_set" "mongodb" {
               ]
             }
 
-            initial_delay_seconds = 15
-            period_seconds        = 5
+            initial_delay_seconds = 60
+            period_seconds        = 15
+            timeout_seconds       = 5
+            failure_threshold     = 2
           }
 
           volume_mount {
