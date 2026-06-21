@@ -1,0 +1,62 @@
+groups:
+  - name: infrastructure_alerts
+    rules:
+      # Règle 1: Instance down
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+
+      # Règle 2: High CPU usage
+      - alert: HighCpuUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% on {{ $labels.instance }} for more than 2 minutes."
+
+      # Règle 3: High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% on {{ $labels.instance }} for more than 2 minutes."
+
+      # Règle 4: Low disk space
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) * 100 > 90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 90% on filesystem {{ $labels.mountpoint }} on {{ $labels.instance }}."
+
+      # Règle 5: Container down
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name=~"portfolio-frontend|portfolio-backend|portfolio-mongodb|jenkins|sonarqube"})
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.name }} is down"
+          description: "Container {{ $labels.name }} has been down for more than 1 minute."
+
+      # Règle 6: High container memory usage
+      - alert: HighContainerMemory
+        expr: (container_memory_usage_bytes{name=~"portfolio-frontend|portfolio-backend|portfolio-mongodb|jenkins|sonarqube"} / container_spec_memory_limit_bytes{name=~"portfolio-frontend|portfolio-backend|portfolio-mongodb|jenkins|sonarqube"}) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in container {{ $labels.name }}"
+          description: "Container {{ $labels.name }} is using more than 90% of its memory limit for more than 2 minutes."

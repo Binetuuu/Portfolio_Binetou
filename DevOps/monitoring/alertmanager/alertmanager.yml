@@ -1,0 +1,41 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'VOTRE_EMAIL@gmail.com'
+  smtp_auth_username: 'VOTRE_EMAIL@gmail.com'
+  smtp_auth_password: 'REMPLACER_PAR_APP_PASSWORD'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'gmail-notifications'
+
+receivers:
+  - name: 'gmail-notifications'
+    email_configs:
+      - to: 'VOTRE_EMAIL@gmail.com'
+        headers:
+          Subject: '[ALERTE] {{ .GroupLabels.alertname }} - Portfolio Monitoring'
+        html: |
+          <h2>🚨 Alerte Portfolio</h2>
+          <p><strong>Alerte:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Statut:</strong> {{ .Status }}</p>
+          <p><strong>Nombre d'alertes:</strong> {{ len .Alerts }}</p>
+          
+          {{ range .Alerts }}
+          <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+            <h3>{{ .Annotations.summary }}</h3>
+            <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+            <p><strong>Sévérité:</strong> {{ .Labels.severity }}</p>
+            <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+            <p><strong>Début:</strong> {{ .StartsAt.Format "2006-01-02 15:04:05" }}</p>
+          </div>
+          {{ end }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
